@@ -1,0 +1,143 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md $spacing-lg;
+  margin-bottom: $spacing-md;
+  display: flex;
+  gap: $spacing-lg;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.inactive {
+    opacity: 0.6;
+  }
+}
+
+.timeSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100rpx;
+  flex-shrink: 0;
+}
+
+.timeText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.timeLine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8rpx 0;
+}
+
+.timeDot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: $color-primary;
+}
+
+.timeBar {
+  width: 4rpx;
+  flex: 1;
+  min-height: 40rpx;
+  background: $color-primary-light;
+  margin: 4rpx 0;
+}
+
+.infoSection {
+  flex: 1;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8rpx;
+}
+
+.studentName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.statusBadge {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+}
+
+.statusActive {
+  background: rgba(0, 180, 42, 0.1);
+}
+
+.statusCancelled {
+  background: rgba(245, 63, 63, 0.1);
+}
+
+.statusCompleted {
+  background: rgba(134, 144, 156, 0.15);
+}
+
+.statusText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  .statusActive & {
+    color: $color-success;
+  }
+
+  .statusCancelled & {
+    color: $color-error;
+  }
+
+  .statusCompleted & {
+    color: $color-text-tertiary;
+  }
+}
+
+.classroom {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: 8rpx;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.mergedTag {
+  padding: 4rpx 12rpx;
+  background: rgba(212, 165, 116, 0.15);
+  border-radius: $radius-xs;
+}
+
+.mergedText {
+  font-size: $font-size-xs;
+  color: $color-accent-dark;
+  font-weight: $font-weight-medium;
+}
+
+.date {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.cancelReason {
+  font-size: $font-size-xs;
+  color: $color-error;
+  margin-top: 8rpx;
+}

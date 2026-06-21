@@ -1,0 +1,106 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    box-shadow: $shadow-card-hover;
+  }
+
+  &.inactive {
+    opacity: 0.6;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.name {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.statusBadge {
+  padding: 6rpx 16rpx;
+  border-radius: $radius-round;
+
+  &.statusActive {
+    background: rgba(0, 180, 42, 0.1);
+  }
+
+  &.statusInactive {
+    background: rgba(134, 144, 156, 0.15);
+  }
+}
+
+.statusText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  .statusActive & {
+    color: $color-success;
+  }
+
+  .statusInactive & {
+    color: $color-text-tertiary;
+  }
+}
+
+.info {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-md;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.equipment {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.equipTag {
+  padding: 6rpx 16rpx;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+}
+
+.equipText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.description {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  line-height: 1.5;
+  @include text-ellipsis-multi(2);
+}

@@ -1,0 +1,280 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: $spacing-md $page-padding;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.dateInfo {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.dateText {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.weekdayText {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-lg;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.statValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.classroomTabs {
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-card;
+  display: flex;
+  gap: $spacing-sm;
+  overflow-x: auto;
+  border-bottom: 1rpx solid $color-divider;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.tabItem {
+  padding: 16rpx 28rpx;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  flex-shrink: 0;
+  transition: all $transition-base;
+
+  &.active {
+    background: $color-primary;
+  }
+}
+
+.tabText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .active & {
+    color: $color-text-white;
+  }
+}
+
+.content {
+  padding: $spacing-md $page-padding;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.timeSlots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.legend {
+  display: flex;
+  gap: $spacing-lg;
+  padding: $spacing-md $page-padding;
+  background: $color-bg-card;
+  margin-bottom: $spacing-md;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.legendDot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 4rpx;
+
+  &.available {
+    background: $color-bg-slot-available;
+    border: 2rpx dashed $color-primary-light;
+  }
+
+  &.booked {
+    background: $color-bg-slot-booked;
+    border: 2rpx solid $color-primary;
+  }
+
+  &.merged {
+    background: $color-bg-slot-merged;
+    border: 2rpx solid $color-primary;
+  }
+}
+
+.legendText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.emptyState {
+  padding: $spacing-xl 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.fab {
+  position: fixed;
+  bottom: 120rpx;
+  right: $page-padding;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-popup;
+  z-index: 100;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.fabIcon {
+  font-size: 48rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-light;
+}
+
+.bookingList {
+  margin-top: $spacing-md;
+}
+
+.bookingSection {
+  margin-bottom: $spacing-lg;
+}
+
+.bookingSectionTitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+  padding-left: $spacing-sm;
+  border-left: 6rpx solid $color-primary;
+}
+
+.demoSection {
+  margin-top: $spacing-lg;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.demoTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.demoIcon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(212, 165, 116, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+.demoDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.demoActions {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.demoBtn {
+  padding: 16rpx 24rpx;
+  border-radius: $radius-sm;
+  background: $color-bg-page;
+  border: none;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.primary {
+    background: $color-primary;
+
+    .demoBtnText {
+      color: $color-text-white;
+    }
+  }
+
+  &.warning {
+    background: rgba(255, 125, 0, 0.1);
+
+    .demoBtnText {
+      color: $color-warning;
+    }
+  }
+}
+
+.demoBtnText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}

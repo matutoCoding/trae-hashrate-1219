@@ -1,0 +1,353 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.infoCard {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.cardTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.cardTitleIcon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(45, 91, 137, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.infoValueHighlight {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.infoValueWarning {
+  color: $color-warning;
+}
+
+.infoValueError {
+  color: $color-error;
+}
+
+.infoValueSuccess {
+  color: $color-success;
+}
+
+.timeSection {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+  padding: $spacing-md 0;
+  margin-bottom: $spacing-md;
+  background: linear-gradient(135deg, $color-bg-slot-available 0%, $color-bg-slot-booked 100%);
+  border-radius: $radius-md;
+  padding: $spacing-lg;
+}
+
+.timeBlock {
+  flex: 1;
+  text-align: center;
+}
+
+.timeLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 8rpx;
+}
+
+.timeValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.timeConnector {
+  width: 60rpx;
+  height: 4rpx;
+  background: $color-primary-light;
+  border-radius: 2rpx;
+  position: relative;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12rpx;
+    height: 12rpx;
+    border-radius: 50%;
+    background: $color-primary;
+  }
+
+  &::before {
+    left: 0;
+  }
+
+  &::after {
+    right: 0;
+  }
+}
+
+.durationBadge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: $color-primary;
+  color: white;
+  padding: 4rpx 12rpx;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  white-space: nowrap;
+}
+
+.studentInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md 0;
+}
+
+.studentAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.studentAvatarText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.studentDetail {
+  flex: 1;
+}
+
+.studentName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 6rpx;
+}
+
+.studentMeta {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.mergedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 4rpx 12rpx;
+  background: rgba(212, 165, 116, 0.15);
+  border-radius: $radius-xs;
+  margin-left: $spacing-sm;
+
+  .mergedTagText {
+    font-size: $font-size-xs;
+    color: $color-accent-dark;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.actionBtn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.primary {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+
+    .actionBtnText {
+      color: $color-text-white;
+    }
+  }
+
+  &.danger {
+    background: $color-error;
+
+    .actionBtnText {
+      color: $color-text-white;
+    }
+  }
+
+  &.secondary {
+    background: $color-bg-page;
+    border: 2rpx solid $color-border;
+
+    .actionBtnText {
+      color: $color-text-secondary;
+    }
+  }
+}
+
+.actionBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.demoSection {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.demoTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.demoIcon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(212, 165, 116, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+.demoDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.demoActions {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.demoBtn {
+  padding: 16rpx 24rpx;
+  border-radius: $radius-sm;
+  background: $color-bg-page;
+  border: none;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.primary {
+    background: $color-primary;
+
+    .demoBtnText {
+      color: $color-text-white;
+    }
+  }
+
+  &.warning {
+    background: rgba(255, 125, 0, 0.1);
+
+    .demoBtnText {
+      color: $color-warning;
+    }
+  }
+
+  &.danger {
+    background: rgba(245, 63, 63, 0.1);
+
+    .demoBtnText {
+      color: $color-error;
+    }
+  }
+}
+
+.demoBtnText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.cancelReason {
+  padding: $spacing-md;
+  background: rgba(245, 63, 63, 0.05);
+  border-radius: $radius-sm;
+  margin-top: $spacing-sm;
+}
+
+.cancelReasonText {
+  font-size: $font-size-sm;
+  color: $color-error;
+}

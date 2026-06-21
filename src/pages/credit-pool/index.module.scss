@@ -1,0 +1,379 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.poolHeader {
+  margin: $spacing-md $page-padding;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-xl $spacing-lg;
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    right: -40rpx;
+    top: -40rpx;
+    width: 200rpx;
+    height: 200rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    right: 40rpx;
+    bottom: -80rpx;
+    width: 160rpx;
+    height: 160rpx;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.poolName {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: $spacing-xs;
+  position: relative;
+  z-index: 1;
+}
+
+.poolBalance {
+  font-size: 56rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+  position: relative;
+  z-index: 1;
+}
+
+.poolUnit {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 8rpx;
+}
+
+.poolStats {
+  display: flex;
+  gap: $spacing-lg;
+  margin-top: $spacing-md;
+  position: relative;
+  z-index: 1;
+}
+
+.poolStatItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.poolStatValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+}
+
+.poolStatLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.versionBadge {
+  position: absolute;
+  top: $spacing-lg;
+  right: $spacing-lg;
+  padding: 6rpx 16rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-round;
+  z-index: 1;
+}
+
+.versionText {
+  font-size: $font-size-xs;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.actionBar {
+  display: flex;
+  gap: $spacing-sm;
+  margin: 0 $page-padding $spacing-md;
+}
+
+.actionBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  background: $color-bg-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-xs;
+  border: none;
+  box-shadow: $shadow-card;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.primary {
+    background: linear-gradient(135deg, $color-accent 0%, $color-accent-dark 100%);
+
+    .actionBtnText {
+      color: $color-text-white;
+    }
+  }
+}
+
+.actionBtnIcon {
+  font-size: 28rpx;
+}
+
+.actionBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sectionMore {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.recordList {
+  padding: 0 $spacing-lg;
+}
+
+.recordItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.recordIcon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  font-size: 28rpx;
+
+  &.deduct {
+    background: rgba(245, 63, 63, 0.1);
+  }
+
+  &.recharge {
+    background: rgba(0, 180, 42, 0.1);
+  }
+
+  &.refund {
+    background: rgba(0, 180, 42, 0.1);
+  }
+
+  &.adjust {
+    background: rgba(45, 91, 137, 0.1);
+  }
+}
+
+.recordInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.recordTitle {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.recordSub {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.recordAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+
+  &.deduct {
+    color: $color-error;
+  }
+
+  &.recharge,
+  &.refund {
+    color: $color-success;
+  }
+
+  &.adjust {
+    color: $color-primary;
+  }
+}
+
+.emptyState {
+  padding: $spacing-xl 0;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 60rpx;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.demoSection {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.demoTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.demoIcon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(45, 91, 137, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+.demoDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.demoActions {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.demoBtn {
+  padding: 16rpx 24rpx;
+  border-radius: $radius-sm;
+  background: $color-bg-page;
+  border: none;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.primary {
+    background: $color-primary;
+
+    .demoBtnText {
+      color: $color-text-white;
+    }
+  }
+
+  &.success {
+    background: rgba(0, 180, 42, 0.1);
+
+    .demoBtnText {
+      color: $color-success;
+    }
+  }
+
+  &.warning {
+    background: rgba(255, 125, 0, 0.1);
+
+    .demoBtnText {
+      color: $color-warning;
+    }
+  }
+}
+
+.demoBtnText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.poolSelector {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-sm $page-padding;
+  overflow-x: auto;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.poolChip {
+  padding: 12rpx 24rpx;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+
+  &.active {
+    background: $color-primary;
+  }
+}
+
+.poolChipText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .active & {
+    color: $color-text-white;
+  }
+}

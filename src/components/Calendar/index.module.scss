@@ -1,0 +1,71 @@
+@use '@/styles/variables.scss' as *;
+
+.calendar {
+  background: $color-bg-card;
+  padding: $spacing-md 0;
+  box-shadow: $shadow-card;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+}
+
+.dateScroll {
+  white-space: nowrap;
+}
+
+.dateList {
+  display: inline-flex;
+  gap: $spacing-sm;
+  padding: 0 $page-padding;
+}
+
+.dateItem {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 90rpx;
+  height: 120rpx;
+  border-radius: $radius-md;
+  background: $color-bg-page;
+  position: relative;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.85;
+    transform: scale(0.96);
+  }
+
+  &.selected {
+    background: $color-primary;
+
+    .weekday,
+    .dayNum {
+      color: $color-text-white;
+    }
+  }
+
+  &.today {
+    border: 2rpx solid $color-primary;
+  }
+}
+
+.weekday {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.dayNum {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.todayDot {
+  position: absolute;
+  bottom: 8rpx;
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: $color-primary;
+}

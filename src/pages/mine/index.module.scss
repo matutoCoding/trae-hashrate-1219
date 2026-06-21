@@ -1,0 +1,197 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+}
+
+.header {
+  padding: $spacing-xl $page-padding;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  padding-bottom: 80rpx;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: $spacing-lg;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  border: 4rpx solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatarText {
+  font-size: 48rpx;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+}
+
+.userDetail {
+  flex: 1;
+}
+
+.userName {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.userRole {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.statsCard {
+  margin: -40rpx $page-padding $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  display: flex;
+  justify-content: space-around;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.statValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.statLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.menuGroup {
+  background: $color-bg-card;
+  margin: $spacing-md $page-padding;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.menuTitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  padding: $spacing-md $spacing-lg $spacing-xs;
+  margin: 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  transition: background $transition-fast;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.menuIcon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-sm;
+  background: rgba(45, 91, 137, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-md;
+  font-size: 28rpx;
+}
+
+.menuText {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.menuArrow {
+  font-size: 32rpx;
+  color: $color-text-tertiary;
+}
+
+.menuBadge {
+  padding: 4rpx 12rpx;
+  background: $color-error;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+
+  .menuBadgeText {
+    font-size: $font-size-xs;
+    color: $color-text-white;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.versionInfo {
+  text-align: center;
+  padding: $spacing-xl;
+  padding-bottom: 60rpx;
+}
+
+.versionText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.featureBanner {
+  margin: $spacing-md $page-padding;
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  color: white;
+}
+
+.bannerTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-bottom: $spacing-sm;
+}
+
+.bannerDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.6;
+}
+
+.bannerActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.bannerBtn {
+  padding: 12rpx 24rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-button;
+  border: none;
+}
+
+.bannerBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}

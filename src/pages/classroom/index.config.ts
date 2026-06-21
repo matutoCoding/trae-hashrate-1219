@@ -1,0 +1,4 @@
+export default definePageConfig({
+  navigationBarTitleText: '教室管理',
+  enablePullDownRefresh: true
+})

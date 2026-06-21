@@ -1,0 +1,318 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.headerCard {
+  margin: $spacing-md $page-padding;
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-light 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  color: white;
+}
+
+.headerTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.headerDesc {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  padding: $spacing-md $spacing-lg $spacing-xs;
+}
+
+.formItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.formLabel {
+  width: 160rpx;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.formValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: right;
+}
+
+.formArrow {
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+  font-size: 32rpx;
+}
+
+.formInput {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-align: right;
+  border: none;
+  background: transparent;
+}
+
+.rankSelector {
+  padding: $spacing-md $spacing-lg;
+}
+
+.rankLevelTitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+}
+
+.rankGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.rankItem {
+  width: calc(20% - 10rpx);
+  padding: $spacing-sm 0;
+  text-align: center;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  border: 2rpx solid transparent;
+  transition: all $transition-fast;
+
+  &.selected {
+    background: rgba(45, 91, 137, 0.1);
+    border-color: $color-primary;
+  }
+
+  &.dan.selected {
+    background: rgba(212, 165, 116, 0.15);
+    border-color: $color-accent;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.rankItemText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .selected & {
+    color: $color-primary;
+  }
+
+  .dan.selected & {
+    color: $color-accent-dark;
+  }
+}
+
+.previewCard {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  text-align: center;
+}
+
+.previewTitle {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-md;
+}
+
+.previewChange {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-lg;
+}
+
+.previewRank {
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  background: $color-bg-page;
+}
+
+.previewRankText {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+
+  &.current {
+    color: $color-text-secondary;
+  }
+
+  &.target {
+    color: $color-primary;
+  }
+
+  &.dan.target {
+    color: $color-accent-dark;
+  }
+}
+
+.previewArrow {
+  font-size: $font-size-xl;
+  color: $color-success;
+}
+
+.previewSub {
+  margin-top: $spacing-md;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.historyList {
+  padding: 0 $spacing-lg;
+}
+
+.historyItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.historyInfo {
+  flex: 1;
+}
+
+.historyRank {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.historyDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.historyOperator {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  text-align: right;
+}
+
+.emptyState {
+  padding: $spacing-lg 0;
+  text-align: center;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.submitBtn {
+  width: 100%;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  background: linear-gradient(135deg, $color-accent 0%, $color-accent-dark 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.submitBtnText {
+  font-size: $font-size-md;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.levelTabs {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-lg;
+}
+
+.levelTab {
+  flex: 1;
+  padding: 16rpx 0;
+  text-align: center;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  transition: all $transition-fast;
+
+  &.active {
+    background: $color-primary;
+  }
+}
+
+.levelTabText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .active & {
+    color: $color-text-white;
+  }
+}
+
+.remarkTextarea {
+  width: 100%;
+  min-height: 120rpx;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  padding: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  border: none;
+  vertical-align: top;
+}

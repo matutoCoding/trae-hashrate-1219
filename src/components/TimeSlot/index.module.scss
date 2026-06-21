@@ -1,0 +1,108 @@
+@use '@/styles/variables.scss' as *;
+
+.slot {
+  width: 140rpx;
+  height: 120rpx;
+  border-radius: $radius-md;
+  padding: $spacing-sm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  transition: all $transition-base;
+  box-sizing: border-box;
+
+  &:active {
+    transform: scale(0.96);
+    opacity: 0.9;
+  }
+
+  &.available {
+    background: $color-bg-slot-available;
+    border: 2rpx dashed $color-primary-light;
+  }
+
+  &.booked {
+    background: $color-bg-slot-booked;
+    border: 2rpx solid $color-primary;
+  }
+
+  &.merged {
+    background: $color-bg-slot-merged;
+    border: 2rpx solid $color-primary;
+    border-radius: 0;
+  }
+
+  &.disabled {
+    background: $color-bg-hover;
+    border: 2rpx solid $color-border;
+    opacity: 0.6;
+  }
+
+  &.selected {
+    background: $color-primary;
+    border-color: $color-primary-dark;
+
+    .startTime,
+    .endTime,
+    .studentName {
+      color: $color-text-white;
+    }
+  }
+
+  &.mergedHead {
+    border-radius: $radius-md $radius-md 0 0;
+    border-bottom: none;
+  }
+
+  &.mergedTail {
+    border-radius: 0 0 $radius-md $radius-md;
+    border-top: none;
+  }
+}
+
+.time {
+  display: flex;
+  flex-direction: column;
+  gap: 2rpx;
+}
+
+.startTime {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: 1.2;
+}
+
+.endTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  line-height: 1.2;
+}
+
+.bookingInfo {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.studentName {
+  font-size: $font-size-sm;
+  color: $color-primary-dark;
+  font-weight: $font-weight-medium;
+  @include text-ellipsis;
+  flex: 1;
+}
+
+.mergedTag {
+  width: 28rpx;
+  height: 28rpx;
+  border-radius: 50%;
+  background: $color-accent;
+  color: $color-text-white;
+  font-size: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: $font-weight-bold;
+}

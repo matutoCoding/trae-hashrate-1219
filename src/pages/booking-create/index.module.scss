@@ -1,0 +1,345 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionIcon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(45, 91, 137, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+.formItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.formLabel {
+  width: 160rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.formValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: right;
+}
+
+.formInput {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  text-align: right;
+  border: none;
+  background: transparent;
+}
+
+.formArrow {
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+  font-size: 32rpx;
+}
+
+.timeSelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+}
+
+.timeItem {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+}
+
+.timeItemLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 8rpx;
+}
+
+.timeItemValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.timeConnector {
+  width: 40rpx;
+  text-align: center;
+  color: $color-text-tertiary;
+  font-size: $font-size-lg;
+}
+
+.studentList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  max-height: 400rpx;
+  overflow-y: auto;
+}
+
+.studentOption {
+  display: flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-md;
+  background: $color-bg-page;
+  transition: all $transition-fast;
+
+  &.selected {
+    background: rgba(45, 91, 137, 0.1);
+    border: 2rpx solid $color-primary;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.studentOptionAvatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: $spacing-sm;
+}
+
+.studentOptionAvatarText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.studentOptionInfo {
+  flex: 1;
+}
+
+.studentOptionName {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: 4rpx;
+}
+
+.studentOptionMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.studentOptionCheck {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  border: 2rpx solid $color-border;
+
+  .selected & {
+    background: $color-primary;
+    border-color: $color-primary;
+    position: relative;
+
+    &::after {
+      content: '✓';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 20rpx;
+    }
+  }
+}
+
+.creditInfo {
+  background: rgba(212, 165, 116, 0.1);
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.creditInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.creditInfoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.creditInfoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+
+  &.highlight {
+    color: $color-accent-dark;
+    font-size: $font-size-lg;
+  }
+
+  &.success {
+    color: $color-success;
+  }
+
+  &.warning {
+    color: $color-warning;
+  }
+
+  &.error {
+    color: $color-error;
+  }
+}
+
+.slotSelector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-lg;
+  padding: $spacing-md 0;
+}
+
+.slotBtn {
+  width: 60rpx;
+  height: 60rpx;
+  border-radius: 50%;
+  background: $color-bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid $color-border;
+  transition: all $transition-fast;
+
+  &:active {
+    transform: scale(0.9);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.slotBtnText {
+  font-size: $font-size-xl;
+  color: $color-text-secondary;
+  font-weight: $font-weight-light;
+}
+
+.slotCount {
+  min-width: 120rpx;
+  text-align: center;
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.slotUnit {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-left: $spacing-xs;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+  display: flex;
+  gap: $spacing-md;
+}
+
+.actionBtn {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &.primary {
+    background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+
+    .actionBtnText {
+      color: $color-text-white;
+    }
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.actionBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+}
+
+.tipBox {
+  margin: $spacing-md $page-padding;
+  padding: $spacing-md;
+  background: rgba(0, 180, 42, 0.05);
+  border-radius: $radius-md;
+}
+
+.tipText {
+  font-size: $font-size-xs;
+  color: $color-success;
+  line-height: 1.6;
+}
