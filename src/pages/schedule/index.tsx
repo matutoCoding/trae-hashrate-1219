@@ -9,21 +9,25 @@ import BookingCard from '@/components/BookingCard'
 import { useClassroomStore } from '@/store/classroomStore'
 import { useBookingStore } from '@/store/bookingStore'
 import { useCreditStore } from '@/store/creditStore'
+import { useTeacherStore } from '@/store/teacherStore'
 import { formatDate, getWeekday, generateTimeSlots } from '@/utils/date'
 
 const SchedulePage: React.FC = () => {
   const today = formatDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [selectedClassroomId, setSelectedClassroomId] = useState('')
+  const [selectedTeacherId, setSelectedTeacherId] = useState('')
 
   const { classrooms, fetchClassrooms } = useClassroomStore()
   const { bookings, mergedBookings, fetchBookings, getBookingsByDate } = useBookingStore()
-  const { fetchPools, pools } = useCreditStore()
+  const { fetchPools } = useCreditStore()
+  const { teachers, fetchTeachers, getActiveTeachers } = useTeacherStore()
 
   useEffect(() => {
     fetchClassrooms()
     fetchBookings()
     fetchPools()
+    fetchTeachers()
   }, [])
 
   useEffect(() => {
@@ -36,11 +40,11 @@ const SchedulePage: React.FC = () => {
   }, [classrooms])
 
   const currentClassroom = classrooms.find(c => c.id === selectedClassroomId)
+  const activeTeachers = getActiveTeachers()
 
   const dayBookings = useMemo(() => {
-    if (!selectedClassroomId) return []
-    return getBookingsByDate(selectedDate, selectedClassroomId)
-  }, [selectedDate, selectedClassroomId, bookings, mergedBookings])
+    return getBookingsByDate(selectedDate, selectedClassroomId, selectedTeacherId || undefined)
+  }, [selectedDate, selectedClassroomId, selectedTeacherId, bookings, mergedBookings])
 
   const timeSlots = useMemo(() => {
     if (!currentClassroom) return []
@@ -86,7 +90,7 @@ const SchedulePage: React.FC = () => {
   }
 
   const handleRefresh = () => {
-    fetchBookings(selectedClassroomId, selectedDate)
+    fetchBookings()
     setTimeout(() => {
       Taro.stopPullDownRefresh()
     }, 500)
@@ -123,16 +127,6 @@ const SchedulePage: React.FC = () => {
     return slotEndMinutes === endMinutes
   }
 
-  const handleDemoMerge = () => {
-    Taro.showToast({ title: '合并演示：相邻同时段自动合并', icon: 'none' })
-    console.log('[Schedule] 演示：时段合并功能')
-  }
-
-  const handleDemoSplit = () => {
-    Taro.showToast({ title: '拆分演示：中途退订自动拆分', icon: 'none' })
-    console.log('[Schedule] 演示：时段拆分功能')
-  }
-
   return (
     <View className={styles.page}>
       <View className={styles.header}>
@@ -162,6 +156,33 @@ const SchedulePage: React.FC = () => {
         onDateSelect={setSelectedDate}
         days={14}
       />
+
+      <View className={styles.filterSection}>
+        <Text className={styles.filterLabel}>老师筛选：</Text>
+        <ScrollView scrollX className={styles.teacherTabs}>
+          <View
+            className={classnames(
+              styles.teacherTab,
+              !selectedTeacherId && styles.teacherTabActive
+            )}
+            onClick={() => setSelectedTeacherId('')}
+          >
+            <Text className={styles.teacherTabText}>全部</Text>
+          </View>
+          {activeTeachers.map(teacher => (
+            <View
+              key={teacher.id}
+              className={classnames(
+                styles.teacherTab,
+                selectedTeacherId === teacher.id && styles.teacherTabActive
+              )}
+              onClick={() => setSelectedTeacherId(teacher.id)}
+            >
+              <Text className={styles.teacherTabText}>{teacher.name}</Text>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
 
       <ScrollView scrollX className={styles.classroomTabs}>
         {classrooms.filter(c => c.status === 'active').map(classroom => (
@@ -244,37 +265,24 @@ const SchedulePage: React.FC = () => {
             </View>
           )}
         </View>
-
-        <View className={styles.demoSection}>
-          <View className={styles.demoTitle}>
-            <View className={styles.demoIcon}>⚙</View>
-            <Text>核心功能演示</Text>
-          </View>
-          <Text className={styles.demoDesc}>
-            时段合并拆分：同一学员连续多节预约自动合并显示，中途退订智能拆分剩余时段
-          </Text>
-          <View className={styles.demoActions}>
-            <Button
-              className={classnames(styles.demoBtn, styles.primary)}
-              onClick={handleDemoMerge}
-            >
-              <Text className={styles.demoBtnText}>合并演示</Text>
-            </Button>
-            <Button
-              className={classnames(styles.demoBtn, styles.warning)}
-              onClick={handleDemoSplit}
-            >
-              <Text className={styles.demoBtnText}>拆分演示</Text>
-            </Button>
-          </View>
-        </View>
       </View>
 
       <View
         className={styles.fab}
         onClick={() => {
-          Taro.navigateTo({
-            url: `/pages/booking-create/index?classroomId=${selectedClassroomId}&date=${selectedDate}`
+          Taro.showActionSheet({
+            itemList: ['单节课预约', '周期课预约'],
+            success: (res) => {
+              if (res.tapIndex === 0) {
+                Taro.navigateTo({
+                  url: `/pages/booking-create/index?classroomId=${selectedClassroomId}&date=${selectedDate}`
+                })
+              } else if (res.tapIndex === 1) {
+                Taro.navigateTo({
+                  url: `/pages/recurring-booking-create/index?classroomId=${selectedClassroomId}&date=${selectedDate}`
+                })
+              }
+            }
           })
         }}
       >

@@ -1,4 +1,4 @@
-import type { LockResult, DeductResult, CreditPool, CreditRecord } from '@/types/credit'
+import type { LockResult, DeductResult, CreditPool, CreditRecord, CreditRecordType } from '@/types/credit'
 
 class ConcurrentLock {
   private locks: Map<string, { lockId: string; timestamp: number; holder: string }> = new Map()
@@ -97,7 +97,38 @@ export class CreditPoolManager {
     return pool.totalCredits - pool.usedCredits - pool.frozenCredits
   }
 
-  deductCredits(
+  private _pushRecord(
+    pool: CreditPool,
+    type: CreditRecordType,
+    amount: number,
+    balanceBefore: number,
+    balanceAfter: number,
+    studentId: string,
+    studentName: string,
+    operator: string,
+    relatedBookingId?: string,
+    remark?: string
+  ): CreditRecord {
+    const record: CreditRecord = {
+      id: `rec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      poolId: pool.id,
+      classId: pool.classId,
+      studentId,
+      studentName,
+      type,
+      amount,
+      balanceBefore,
+      balanceAfter,
+      relatedBookingId,
+      operator,
+      remark,
+      createdAt: new Date().toISOString()
+    }
+    this.records.push(record)
+    return record
+  }
+
+  freezeCredits(
     poolId: string,
     studentId: string,
     studentName: string,
@@ -105,63 +136,107 @@ export class CreditPoolManager {
     operator: string,
     relatedBookingId?: string
   ): DeductResult {
-    const lockResult = lockManager.acquire(poolId, `deduct_${studentId}`)
+    const lockResult = lockManager.acquire(poolId, `freeze_${studentId}`)
     if (!lockResult.success || !lockResult.lockId) {
       return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
     }
-
     try {
       const pool = this.pools.get(poolId)
       if (!pool) {
         return { success: false, message: '额度池不存在' }
       }
-
-      const available = pool.totalCredits - pool.usedCredits - pool.frozenCredits
-      if (available < amount) {
-        console.log('[CreditPool] 额度不足:', {
-          poolId,
-          available,
-          requested: amount
-        })
-        return { success: false, message: `剩余额度不足，当前可用${available}课时` }
+      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      if (balanceBefore < amount) {
+        console.log('[CreditPool] 冻结失败，额度不足:', { poolId, balanceBefore, amount })
+        return { success: false, message: `剩余额度不足，当前可用${balanceBefore}课时` }
       }
+      pool.frozenCredits += amount
+      pool.version += 1
+      pool.updatedAt = new Date().toISOString()
+      const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      const record = this._pushRecord(
+        pool, 'freeze', amount, balanceBefore, balanceAfter,
+        studentId, studentName, operator, relatedBookingId
+      )
+      console.log('[CreditPool] 冻结成功:', { studentName, amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
+    } finally {
+      lockManager.release(poolId, lockResult.lockId)
+    }
+  }
 
-      const balanceBefore = available
+  consumeCredits(
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string,
+    remark?: string
+  ): DeductResult {
+    const lockResult = lockManager.acquire(poolId, `consume_${studentId}`)
+    if (!lockResult.success || !lockResult.lockId) {
+      return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
+    }
+    try {
+      const pool = this.pools.get(poolId)
+      if (!pool) {
+        return { success: false, message: '额度池不存在' }
+      }
+      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      if (pool.frozenCredits < amount) {
+        console.warn('[CreditPool] 消课时冻结额度不足，按实际冻结扣减')
+        amount = pool.frozenCredits
+      }
+      pool.frozenCredits -= amount
       pool.usedCredits += amount
       pool.version += 1
       pool.updatedAt = new Date().toISOString()
       const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      const record = this._pushRecord(
+        pool, 'consume', amount, balanceBefore, balanceAfter,
+        studentId, studentName, operator, relatedBookingId, remark
+      )
+      console.log('[CreditPool] 签到消课:', { studentName, amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
+    } finally {
+      lockManager.release(poolId, lockResult.lockId)
+    }
+  }
 
-      const record: CreditRecord = {
-        id: `rec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        poolId,
-        classId: pool.classId,
-        studentId,
-        studentName,
-        type: 'deduct',
-        amount,
-        balanceBefore,
-        balanceAfter,
-        relatedBookingId,
-        operator,
-        createdAt: new Date().toISOString()
+  unfreezeCredits(
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string,
+    remark?: string
+  ): DeductResult {
+    const lockResult = lockManager.acquire(poolId, `unfreeze_${studentId}`)
+    if (!lockResult.success || !lockResult.lockId) {
+      return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
+    }
+    try {
+      const pool = this.pools.get(poolId)
+      if (!pool) {
+        return { success: false, message: '额度池不存在' }
       }
-      this.records.push(record)
-
-      console.log('[CreditPool] 扣减成功:', {
-        poolId,
-        studentName,
-        amount,
-        扣减前余额: balanceBefore,
-        扣减后余额: balanceAfter,
-        version: pool.version
-      })
-
-      return {
-        success: true,
-        balance: balanceAfter,
-        recordId: record.id
+      if (pool.frozenCredits < amount) {
+        console.warn('[CreditPool] 解冻额度超过冻结额度，按实际冻结解冻')
+        amount = pool.frozenCredits
       }
+      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      pool.frozenCredits -= amount
+      pool.version += 1
+      pool.updatedAt = new Date().toISOString()
+      const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      const record = this._pushRecord(
+        pool, 'unfreeze', amount, balanceBefore, balanceAfter,
+        studentId, studentName, operator, relatedBookingId, remark
+      )
+      console.log('[CreditPool] 解冻:', { studentName, amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
     } finally {
       lockManager.release(poolId, lockResult.lockId)
     }
@@ -173,61 +248,106 @@ export class CreditPoolManager {
     studentName: string,
     amount: number,
     operator: string,
-    relatedBookingId?: string
+    relatedBookingId?: string,
+    remark?: string
   ): DeductResult {
     const lockResult = lockManager.acquire(poolId, `refund_${studentId}`)
     if (!lockResult.success || !lockResult.lockId) {
       return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
     }
-
     try {
       const pool = this.pools.get(poolId)
       if (!pool) {
         return { success: false, message: '额度池不存在' }
       }
-
-      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
-
       if (pool.usedCredits < amount) {
         console.warn('[CreditPool] 退还额度超过已用额度，按实际已用退还')
         amount = pool.usedCredits
       }
-
+      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
       pool.usedCredits -= amount
       pool.version += 1
       pool.updatedAt = new Date().toISOString()
       const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      const record = this._pushRecord(
+        pool, 'refund', amount, balanceBefore, balanceAfter,
+        studentId, studentName, operator, relatedBookingId, remark
+      )
+      console.log('[CreditPool] 退还(已用):', { studentName, amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
+    } finally {
+      lockManager.release(poolId, lockResult.lockId)
+    }
+  }
 
-      const record: CreditRecord = {
-        id: `rec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        poolId,
-        classId: pool.classId,
-        studentId,
-        studentName,
-        type: 'refund',
-        amount,
-        balanceBefore,
-        balanceAfter,
-        relatedBookingId,
-        operator,
-        createdAt: new Date().toISOString()
+  absentConsume(
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string
+  ): DeductResult {
+    const lockResult = lockManager.acquire(poolId, `absent_${studentId}`)
+    if (!lockResult.success || !lockResult.lockId) {
+      return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
+    }
+    try {
+      const pool = this.pools.get(poolId)
+      if (!pool) {
+        return { success: false, message: '额度池不存在' }
       }
-      this.records.push(record)
-
-      console.log('[CreditPool] 退还成功:', {
-        poolId,
-        studentName,
-        amount,
-        退还前余额: balanceBefore,
-        退还后余额: balanceAfter,
-        version: pool.version
-      })
-
-      return {
-        success: true,
-        balance: balanceAfter,
-        recordId: record.id
+      if (pool.frozenCredits < amount) {
+        amount = pool.frozenCredits
       }
+      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      pool.frozenCredits -= amount
+      pool.usedCredits += amount
+      pool.version += 1
+      pool.updatedAt = new Date().toISOString()
+      const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      const record = this._pushRecord(
+        pool, 'absent_consume', amount, balanceBefore, balanceAfter,
+        studentId, studentName, operator, relatedBookingId
+      )
+      console.log('[CreditPool] 缺勤扣课:', { studentName, amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
+    } finally {
+      lockManager.release(poolId, lockResult.lockId)
+    }
+  }
+
+  leaveUnfreeze(
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string
+  ): DeductResult {
+    const lockResult = lockManager.acquire(poolId, `leave_${studentId}`)
+    if (!lockResult.success || !lockResult.lockId) {
+      return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
+    }
+    try {
+      const pool = this.pools.get(poolId)
+      if (!pool) {
+        return { success: false, message: '额度池不存在' }
+      }
+      if (pool.frozenCredits < amount) {
+        amount = pool.frozenCredits
+      }
+      const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      pool.frozenCredits -= amount
+      pool.version += 1
+      pool.updatedAt = new Date().toISOString()
+      const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
+      const record = this._pushRecord(
+        pool, 'leave_unfreeze', amount, balanceBefore, balanceAfter,
+        studentId, studentName, operator, relatedBookingId
+      )
+      console.log('[CreditPool] 请假解冻:', { studentName, amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
     } finally {
       lockManager.release(poolId, lockResult.lockId)
     }
@@ -243,51 +363,36 @@ export class CreditPoolManager {
     if (!lockResult.success || !lockResult.lockId) {
       return { success: false, message: lockResult.message || '系统繁忙，请稍后重试' }
     }
-
     try {
       const pool = this.pools.get(poolId)
       if (!pool) {
         return { success: false, message: '额度池不存在' }
       }
-
       const balanceBefore = pool.totalCredits - pool.usedCredits - pool.frozenCredits
       pool.totalCredits += amount
       pool.version += 1
       pool.updatedAt = new Date().toISOString()
       const balanceAfter = pool.totalCredits - pool.usedCredits - pool.frozenCredits
-
-      const record: CreditRecord = {
-        id: `rec_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        poolId,
-        classId: pool.classId,
-        studentId: '',
-        studentName: '系统充值',
-        type: 'recharge',
-        amount,
-        balanceBefore,
-        balanceAfter,
-        operator,
-        remark,
-        createdAt: new Date().toISOString()
-      }
-      this.records.push(record)
-
-      console.log('[CreditPool] 充值成功:', {
-        poolId,
-        amount,
-        充值前余额: balanceBefore,
-        充值后余额: balanceAfter,
-        version: pool.version
-      })
-
-      return {
-        success: true,
-        balance: balanceAfter,
-        recordId: record.id
-      }
+      const record = this._pushRecord(
+        pool, 'recharge', amount, balanceBefore, balanceAfter,
+        '', '系统充值', operator, undefined, remark
+      )
+      console.log('[CreditPool] 充值:', { amount, 余额: balanceAfter })
+      return { success: true, balance: balanceAfter, recordId: record.id }
     } finally {
       lockManager.release(poolId, lockResult.lockId)
     }
+  }
+
+  deductCredits(
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string
+  ): DeductResult {
+    return this.freezeCredits(poolId, studentId, studentName, amount, operator, relatedBookingId)
   }
 
   getRecords(poolId?: string, studentId?: string): CreditRecord[] {

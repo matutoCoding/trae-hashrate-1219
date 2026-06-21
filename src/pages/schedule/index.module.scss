@@ -51,6 +51,51 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+.filterSection {
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.filterLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+  display: block;
+}
+
+.teacherTabs {
+  white-space: nowrap;
+  display: flex;
+  gap: $spacing-sm;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.teacherTab {
+  padding: 10rpx 24rpx;
+  border-radius: 32rpx;
+  background: $color-bg-page;
+  flex-shrink: 0;
+  transition: all $transition-base;
+
+  &.teacherTabActive {
+    background: $color-primary-light;
+  }
+}
+
+.teacherTabText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .teacherTabActive & {
+    color: $color-primary;
+  }
+}
+
 .classroomTabs {
   padding: $spacing-sm $page-padding;
   background: $color-bg-card;

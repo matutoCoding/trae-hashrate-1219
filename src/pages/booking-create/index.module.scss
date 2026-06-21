@@ -76,6 +76,10 @@
   font-size: 32rpx;
 }
 
+.formValuePlaceholder {
+  color: $color-text-placeholder;
+}
+
 .timeSelector {
   display: flex;
   align-items: center;
@@ -336,6 +340,27 @@
   padding: $spacing-md;
   background: rgba(0, 180, 42, 0.05);
   border-radius: $radius-md;
+}
+
+.conflictWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 86, 34, 0.08);
+  border-radius: $radius-sm;
+  margin-top: $spacing-sm;
+}
+
+.conflictIcon {
+  font-size: 28rpx;
+}
+
+.conflictText {
+  flex: 1;
+  font-size: $font-size-xs;
+  color: $color-error;
+  line-height: 1.5;
 }
 
 .tipText {

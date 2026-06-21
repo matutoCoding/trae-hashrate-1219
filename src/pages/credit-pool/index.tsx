@@ -6,20 +6,27 @@ import styles from './index.module.scss'
 import classnames from 'classnames'
 import { useCreditStore } from '@/store/creditStore'
 import { creditPoolManager } from '@/utils/lock'
-import { mockCreditRecords } from '@/data/mockCredit'
-import type { CreditRecord } from '@/types/credit'
+import type { CreditRecord, CreditRecordType } from '@/types/credit'
 
 const CreditPoolPage: React.FC = () => {
   const router = useRouter()
   const poolId = router.params.id
 
-  const { pools, fetchPools, getAvailableCredits, rechargeCredits, deductCredits, refundCredits } = useCreditStore()
+  const {
+    pools,
+    records,
+    fetchPools,
+    fetchRecords,
+    getAvailableCredits,
+    rechargeCredits,
+    refundCredits
+  } = useCreditStore()
 
   const [selectedPoolId, setSelectedPoolId] = useState(poolId || '')
-  const [records, setRecords] = useState<CreditRecord[]>([])
 
   useEffect(() => {
     fetchPools()
+    fetchRecords()
   }, [])
 
   useEffect(() => {
@@ -28,18 +35,12 @@ const CreditPoolPage: React.FC = () => {
     }
   }, [pools])
 
-  useEffect(() => {
-    if (selectedPoolId) {
-      const poolRecords = creditPoolManager.getRecords(selectedPoolId)
-      if (poolRecords.length > 0) {
-        setRecords(poolRecords)
-      } else {
-        setRecords(mockCreditRecords.filter(r => r.poolId === selectedPoolId))
-      }
-    }
-  }, [selectedPoolId])
-
   const currentPool = pools.find(p => p.id === selectedPoolId)
+
+  const poolRecords = useMemo(() => {
+    if (!selectedPoolId) return []
+    return records.filter(r => r.poolId === selectedPoolId)
+  }, [records, selectedPoolId])
 
   const available = useMemo(() => {
     if (!currentPool) return 0
@@ -62,7 +63,7 @@ const CreditPoolPage: React.FC = () => {
           const result = rechargeCredits(selectedPoolId, amount, '管理员', '手动充值')
           if (result.success) {
             Taro.showToast({ title: '充值成功', icon: 'success' })
-            setRecords(creditPoolManager.getRecords(selectedPoolId))
+            fetchRecords()
           } else {
             Taro.showToast({ title: result.message || '充值失败', icon: 'none' })
           }
@@ -95,7 +96,7 @@ const CreditPoolPage: React.FC = () => {
         if (completed === 5) {
           Taro.hideLoading()
           fetchPools()
-          setRecords(creditPoolManager.getRecords(selectedPoolId))
+          fetchRecords()
           const successCount = results.filter(r => r).length
           Taro.showModal({
             title: '并发扣减演示',
@@ -122,7 +123,7 @@ const CreditPoolPage: React.FC = () => {
 
     if (result.success) {
       fetchPools()
-      setRecords(creditPoolManager.getRecords(selectedPoolId))
+      fetchRecords()
       Taro.showToast({ title: '退还成功', icon: 'success' })
     } else {
       Taro.showToast({ title: result.message || '退还失败', icon: 'none' })
@@ -139,18 +140,23 @@ const CreditPoolPage: React.FC = () => {
     })
   }
 
-  const getRecordTypeConfig = (type: CreditRecord['type']) => {
-    const configs = {
-      deduct: { icon: '−', text: '扣减', className: 'deduct' },
+  const getRecordTypeConfig = (type: CreditRecordType) => {
+    const configs: Record<CreditRecordType, { icon: string; text: string; className: string }> = {
       recharge: { icon: '+', text: '充值', className: 'recharge' },
-      refund: { icon: '+', text: '退还', className: 'refund' },
-      adjust: { icon: '⚙', text: '调整', className: 'adjust' }
+      adjust: { icon: '⚙', text: '调整', className: 'adjust' },
+      freeze: { icon: '❄', text: '预约冻结', className: 'freeze' },
+      consume: { icon: '✓', text: '实际消课', className: 'consume' },
+      unfreeze: { icon: '↩', text: '解冻退还', className: 'refund' },
+      refund: { icon: '↩', text: '退还', className: 'refund' },
+      absent_consume: { icon: '✕', text: '缺勤扣课', className: 'absent' },
+      leave_unfreeze: { icon: '🏠', text: '请假退还', className: 'leave' }
     }
-    return configs[type]
+    return configs[type] || { icon: '•', text: type, className: 'adjust' }
   }
 
   const getAmountDisplay = (record: CreditRecord) => {
-    const prefix = record.type === 'deduct' ? '-' : '+'
+    const negativeTypes: CreditRecordType[] = ['freeze', 'consume', 'absent_consume']
+    const prefix = negativeTypes.includes(record.type) ? '-' : '+'
     return `${prefix}${record.amount}`
   }
 
@@ -246,11 +252,11 @@ const CreditPoolPage: React.FC = () => {
       <View className={styles.section}>
         <View className={styles.sectionTitle}>
           <Text>额度变更记录</Text>
-          <Text className={styles.sectionMore}>共 {records.length} 条</Text>
+          <Text className={styles.sectionMore}>共 {poolRecords.length} 条</Text>
         </View>
         <View className={styles.recordList}>
-          {records.length > 0 ? (
-            records.slice(0, 10).map(record => {
+          {poolRecords.length > 0 ? (
+            poolRecords.slice(0, 10).map(record => {
               const typeConfig = getRecordTypeConfig(record.type)
               return (
                 <View key={record.id} className={styles.recordItem}>

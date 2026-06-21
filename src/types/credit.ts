@@ -9,13 +9,23 @@ export interface CreditPool {
   updatedAt: string
 }
 
+export type CreditRecordType =
+  | 'recharge'
+  | 'adjust'
+  | 'freeze'
+  | 'consume'
+  | 'unfreeze'
+  | 'refund'
+  | 'absent_consume'
+  | 'leave_unfreeze'
+
 export interface CreditRecord {
   id: string
   poolId: string
   classId: string
   studentId: string
   studentName: string
-  type: 'deduct' | 'recharge' | 'refund' | 'adjust'
+  type: CreditRecordType
   amount: number
   balanceBefore: number
   balanceAfter: number

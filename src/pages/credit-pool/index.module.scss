@@ -208,6 +208,22 @@
   &.adjust {
     background: rgba(45, 91, 137, 0.1);
   }
+
+  &.freeze {
+    background: rgba(45, 91, 137, 0.1);
+  }
+
+  &.consume {
+    background: rgba(0, 180, 42, 0.12);
+  }
+
+  &.absent {
+    background: rgba(245, 63, 63, 0.1);
+  }
+
+  &.leave {
+    background: rgba(255, 125, 0, 0.1);
+  }
 }
 
 .recordInfo {
@@ -242,6 +258,22 @@
 
   &.adjust {
     color: $color-primary;
+  }
+
+  &.freeze {
+    color: $color-primary;
+  }
+
+  &.consume {
+    color: $color-success;
+  }
+
+  &.absent {
+    color: $color-error;
+  }
+
+  &.leave {
+    color: $color-warning;
   }
 }
 

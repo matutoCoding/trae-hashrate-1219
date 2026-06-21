@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react'
-import { View, Text, Button, Input, Textarea } from '@tarojs/components'
+import React, { useState, useEffect, useMemo } from 'react'
+import { View, Text, Button, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useRouter } from '@tarojs/taro'
 import styles from './index.module.scss'
 import classnames from 'classnames'
 import { useStudentStore } from '@/store/studentStore'
-import { rankLevels, mockRankRecords } from '@/data/mockStudent'
 import type { RankLevel } from '@/types/student'
 
 const kyuLevels: RankLevel[] = [
@@ -21,7 +20,15 @@ const RankUpgradePage: React.FC = () => {
   const router = useRouter()
   const studentId = router.params.studentId
 
-  const { getStudent, upgradeRank, students, fetchStudents } = useStudentStore()
+  const {
+    getStudent,
+    upgradeRank,
+    students,
+    fetchStudents,
+    fetchRankRecords,
+    getStudentRankRecords,
+    rankRecords
+  } = useStudentStore()
 
   const [selectedStudentId, setSelectedStudentId] = useState(studentId || '')
   const [currentRank, setCurrentRank] = useState<RankLevel>('无级')
@@ -32,6 +39,7 @@ const RankUpgradePage: React.FC = () => {
 
   useEffect(() => {
     fetchStudents()
+    fetchRankRecords()
   }, [])
 
   useEffect(() => {
@@ -41,14 +49,27 @@ const RankUpgradePage: React.FC = () => {
         setCurrentRank(student.rank)
         const isDan = student.rank.includes('段')
         setLevelType(isDan ? 'dan' : 'kyu')
+        if (!isDan) {
+          const idx = kyuLevels.indexOf(student.rank as RankLevel)
+          if (idx >= 0 && idx < kyuLevels.length - 1) {
+            setTargetRank(kyuLevels[idx + 1])
+          }
+        } else {
+          const idx = danLevels.indexOf(student.rank as RankLevel)
+          if (idx >= 0 && idx < danLevels.length - 1) {
+            setTargetRank(danLevels[idx + 1])
+          }
+        }
       }
     }
   }, [selectedStudentId, students])
 
   const student = selectedStudentId ? getStudent(selectedStudentId) : undefined
-  const historyRecords = mockRankRecords
-    .filter(r => r.studentId === selectedStudentId)
-    .sort((a, b) => b.upgradeDate.localeCompare(a.upgradeDate))
+
+  const historyRecords = useMemo(() => {
+    if (!selectedStudentId) return []
+    return getStudentRankRecords(selectedStudentId)
+  }, [selectedStudentId, rankRecords, getStudentRankRecords])
 
   const canSubmit = selectedStudentId && targetRank && targetRank !== currentRank
 
@@ -79,14 +100,17 @@ const RankUpgradePage: React.FC = () => {
       confirmColor: '#D4A574',
       success: (res) => {
         if (res.confirm) {
-          const record = upgradeRank(selectedStudentId, targetRank, operator, remark)
-          if (record) {
+          const result = upgradeRank(selectedStudentId, targetRank, operator, remark)
+          if (result.success) {
             Taro.showToast({ title: '登记成功', icon: 'success' })
             setTimeout(() => {
-              Taro.navigateBack()
-            }, 1000)
+              const updated = getStudent(selectedStudentId)
+              if (updated) {
+                setCurrentRank(updated.rank)
+              }
+            }, 500)
           } else {
-            Taro.showToast({ title: '登记失败', icon: 'none' })
+            Taro.showToast({ title: result.message || '登记失败', icon: 'none' })
           }
         }
       }
@@ -94,6 +118,11 @@ const RankUpgradePage: React.FC = () => {
   }
 
   const displayLevels = levelType === 'kyu' ? kyuLevels : danLevels
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr)
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  }
 
   return (
     <View className={styles.page}>
@@ -113,7 +142,7 @@ const RankUpgradePage: React.FC = () => {
         </View>
         <View className={styles.formItem}>
           <Text className={styles.formLabel}>当前段位</Text>
-          <Text className={styles.formValue} style={{ color: currentLevelType === 'dan' ? '#D4A574' : '#2D5B89' }}>
+          <Text className={styles.formValue} style={{ color: currentLevelType === 'dan' ? '#D4A574' : '#2D5B89', fontWeight: 600 }}>
             {currentRank}
           </Text>
         </View>
@@ -148,11 +177,15 @@ const RankUpgradePage: React.FC = () => {
                 className={classnames(
                   styles.rankItem,
                   targetRank === rank && styles.selected,
-                  levelType === 'dan' && styles.dan
+                  levelType === 'dan' && styles.dan,
+                  rank === currentRank && styles.currentRank
                 )}
                 onClick={() => handleSelectTargetRank(rank)}
               >
                 <Text className={styles.rankItemText}>{rank}</Text>
+                {rank === currentRank && (
+                  <Text className={styles.currentRankTag}>当前</Text>
+                )}
               </View>
             ))}
           </View>
@@ -207,9 +240,14 @@ const RankUpgradePage: React.FC = () => {
                   <Text className={styles.historyRank}>
                     {record.fromRank} → {record.toRank}
                   </Text>
-                  <Text className={styles.historyDate}>{record.upgradeDate}</Text>
+                  <Text className={styles.historyDate}>{formatDate(record.recordDate)}</Text>
                 </View>
-                <Text className={styles.historyOperator}>{record.operator}</Text>
+                <View className={styles.historyRight}>
+                  <Text className={styles.historyOperator}>{record.operator}</Text>
+                  {record.remark && (
+                    <Text className={styles.historyRemark}>{record.remark}</Text>
+                  )}
+                </View>
               </View>
             ))
           ) : (

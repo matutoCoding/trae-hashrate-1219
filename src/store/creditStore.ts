@@ -14,6 +14,63 @@ interface CreditState {
   fetchRecords: (poolId?: string) => void
   getPoolByClassId: (classId: string) => CreditPool | undefined
   getAvailableCredits: (poolId: string) => number
+  freezeCredits: (
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string
+  ) => { success: boolean; message?: string }
+  consumeCredits: (
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string,
+    remark?: string
+  ) => { success: boolean; message?: string }
+  unfreezeCredits: (
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string,
+    remark?: string
+  ) => boolean
+  refundCredits: (
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string,
+    remark?: string
+  ) => boolean
+  absentConsume: (
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string
+  ) => { success: boolean; message?: string }
+  leaveUnfreeze: (
+    poolId: string,
+    studentId: string,
+    studentName: string,
+    amount: number,
+    operator: string,
+    relatedBookingId?: string
+  ) => { success: boolean; message?: string }
+  rechargeCredits: (
+    poolId: string,
+    amount: number,
+    operator: string,
+    remark?: string
+  ) => boolean
   deductCredits: (
     poolId: string,
     studentId: string,
@@ -22,22 +79,16 @@ interface CreditState {
     operator: string,
     relatedBookingId?: string
   ) => { success: boolean; message?: string }
-  refundCredits: (
-    poolId: string,
-    studentId: string,
-    studentName: string,
-    amount: number,
-    operator: string,
-    relatedBookingId?: string
-  ) => boolean
-  rechargeCredits: (
-    poolId: string,
-    amount: number,
-    operator: string,
-    remark?: string
-  ) => boolean
   getPoolRecords: (poolId: string) => CreditRecord[]
   setCurrentPool: (pool: CreditPool | null) => void
+}
+
+const _syncState = () => {
+  return {
+    pools: creditPoolManager.getAllPools(),
+    records: creditPoolManager.getAllRecords()
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  }
 }
 
 export const useCreditStore = create<CreditState>((set, get) => ({
@@ -52,11 +103,9 @@ export const useCreditStore = create<CreditState>((set, get) => ({
     const { initialized } = get()
     if (initialized) {
       set({ pools: creditPoolManager.getAllPools() })
-      console.log('[CreditStore] 已初始化，更新额度池列表，共', creditPoolManager.getAllPools().length, '个')
       return
     }
     set({ loading: true })
-    console.log('[CreditStore] 首次加载，初始化额度池 mock 数据')
     setTimeout(() => {
       creditPoolManager.initPools(mockCreditPools)
       set({
@@ -64,7 +113,7 @@ export const useCreditStore = create<CreditState>((set, get) => ({
         loading: false,
         initialized: true
       })
-      console.log('[CreditStore] 额度池初始化完成，共', creditPoolManager.getAllPools().length, '个')
+      console.log('[CreditStore] 额度池初始化完成')
     }, 200)
   },
 
@@ -73,7 +122,6 @@ export const useCreditStore = create<CreditState>((set, get) => ({
     let records = creditPoolManager.getAllRecords()
 
     if (!recordsInitialized && records.length === 0) {
-      console.log('[CreditStore] 首次加载额度明细，初始化 mock 数据')
       creditPoolManager.initRecords(mockCreditRecords)
       records = creditPoolManager.getAllRecords()
       set({ recordsInitialized: true })
@@ -84,71 +132,81 @@ export const useCreditStore = create<CreditState>((set, get) => ({
     }
     records.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     set({ records })
-    console.log('[CreditStore] 额度明细加载完成，共', records.length, '条')
   },
 
-  getPoolByClassId: (classId: string) => {
+  getPoolByClassId: (classId) => {
     return get().pools.find(p => p.classId === classId)
   },
 
-  getAvailableCredits: (poolId: string) => {
+  getAvailableCredits: (poolId) => {
     return creditPoolManager.getAvailableCredits(poolId)
   },
 
-  deductCredits: (
-    poolId, studentId, studentName, amount, operator, relatedBookingId
-  ) => {
-    const result = creditPoolManager.deductCredits(
+  freezeCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId) => {
+    const result = creditPoolManager.freezeCredits(
       poolId, studentId, studentName, amount, operator, relatedBookingId
     )
-    if (result.success) {
-      set({
-        pools: creditPoolManager.getAllPools(),
-        records: creditPoolManager.getAllRecords()
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      })
-      console.log('[CreditStore] 扣减成功:', { 学员: studentName, 额度池: poolId, 数量: amount })
-    }
+    if (result.success) set(_syncState())
     return result
   },
 
-  refundCredits: (
-    poolId, studentId, studentName, amount, operator, relatedBookingId
-  ) => {
-    const success = creditPoolManager.refundCredits(
+  consumeCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId, remark) => {
+    const result = creditPoolManager.consumeCredits(
+      poolId, studentId, studentName, amount, operator, relatedBookingId, remark
+    )
+    if (result.success) set(_syncState())
+    return result
+  },
+
+  unfreezeCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId, remark) => {
+    const result = creditPoolManager.unfreezeCredits(
+      poolId, studentId, studentName, amount, operator, relatedBookingId, remark
+    )
+    if (result.success) set(_syncState())
+    return result.success
+  },
+
+  refundCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId, remark) => {
+    const result = creditPoolManager.refundCredits(
+      poolId, studentId, studentName, amount, operator, relatedBookingId, remark
+    )
+    if (result.success) set(_syncState())
+    return result.success
+  },
+
+  absentConsume: (poolId, studentId, studentName, amount, operator, relatedBookingId) => {
+    const result = creditPoolManager.absentConsume(
       poolId, studentId, studentName, amount, operator, relatedBookingId
     )
-    if (success) {
-      set({
-        pools: creditPoolManager.getAllPools(),
-        records: creditPoolManager.getAllRecords()
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      })
-      console.log('[CreditStore] 退还成功:', { 学员: studentName, 额度池: poolId, 数量: amount })
-    }
-    return success
+    if (result.success) set(_syncState())
+    return result
+  },
+
+  leaveUnfreeze: (poolId, studentId, studentName, amount, operator, relatedBookingId) => {
+    const result = creditPoolManager.leaveUnfreeze(
+      poolId, studentId, studentName, amount, operator, relatedBookingId
+    )
+    if (result.success) set(_syncState())
+    return result
   },
 
   rechargeCredits: (poolId, amount, operator, remark) => {
-    const success = creditPoolManager.rechargeCredits(poolId, amount, operator, remark)
-    if (success) {
-      set({
-        pools: creditPoolManager.getAllPools(),
-        records: creditPoolManager.getAllRecords()
-          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-      })
-      console.log('[CreditStore] 充值成功:', { 额度池: poolId, 数量: amount })
-    }
-    return success
+    const result = creditPoolManager.rechargeCredits(poolId, amount, operator, remark)
+    if (result.success) set(_syncState())
+    return result.success
   },
 
-  getPoolRecords: (poolId: string) => {
+  deductCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId) => {
+    return get().freezeCredits(poolId, studentId, studentName, amount, operator, relatedBookingId)
+  },
+
+  getPoolRecords: (poolId) => {
     return creditPoolManager.getAllRecords()
       .filter(r => r.poolId === poolId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   },
 
-  setCurrentPool: (pool: CreditPool | null) => {
+  setCurrentPool: (pool) => {
     set({ currentPool: pool })
   }
 }))

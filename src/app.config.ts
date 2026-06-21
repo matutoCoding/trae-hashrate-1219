@@ -9,7 +9,8 @@ export default defineAppConfig({
     'pages/classroom-edit/index',
     'pages/student-detail/index',
     'pages/rank-upgrade/index',
-    'pages/credit-pool/index'
+    'pages/credit-pool/index',
+    'pages/recurring-booking-create/index'
   ],
   window: {
     backgroundTextStyle: 'light',

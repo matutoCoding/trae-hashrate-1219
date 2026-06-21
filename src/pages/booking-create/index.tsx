@@ -8,6 +8,7 @@ import { useClassroomStore } from '@/store/classroomStore'
 import { useStudentStore } from '@/store/studentStore'
 import { useBookingStore } from '@/store/bookingStore'
 import { useCreditStore } from '@/store/creditStore'
+import { useTeacherStore } from '@/store/teacherStore'
 import { generateTimeSlots } from '@/utils/date'
 
 const BookingCreatePage: React.FC = () => {
@@ -16,12 +17,14 @@ const BookingCreatePage: React.FC = () => {
 
   const { classrooms, fetchClassrooms, getClassroom } = useClassroomStore()
   const { students, fetchStudents } = useStudentStore()
-  const { createBooking } = useBookingStore()
+  const { createBooking, checkTeacherConflict } = useBookingStore()
   const { getPoolByClassId, getAvailableCredits } = useCreditStore()
+  const { teachers, fetchTeachers, getActiveTeachers } = useTeacherStore()
 
   const [selectedClassroomId, setSelectedClassroomId] = useState(classroomId || '')
   const [selectedDate, setSelectedDate] = useState(date || '')
   const [selectedStudentId, setSelectedStudentId] = useState('')
+  const [selectedTeacherId, setSelectedTeacherId] = useState('')
   const [slotCount, setSlotCount] = useState(1)
   const [startTimeVal, setStartTimeVal] = useState(startTime || '09:00')
   const [endTimeVal, setEndTimeVal] = useState(endTime || '10:00')
@@ -30,6 +33,7 @@ const BookingCreatePage: React.FC = () => {
   useEffect(() => {
     fetchClassrooms()
     fetchStudents()
+    fetchTeachers()
   }, [])
 
   const currentClassroom = selectedClassroomId ? getClassroom(selectedClassroomId) : undefined
@@ -44,12 +48,30 @@ const BookingCreatePage: React.FC = () => {
   }, [currentClassroom])
 
   const selectedStudent = students.find(s => s.id === selectedStudentId)
+  const selectedTeacher = teachers.find(t => t.id === selectedTeacherId)
   const pool = selectedStudent ? getPoolByClassId(selectedStudent.classId) : undefined
   const availableCredits = pool ? getAvailableCredits(pool.id) : 0
 
-  const totalCost = slotCount * (currentClassroom?.slotDuration ? 1 : 1)
+  const totalCost = slotCount
 
-  const canSubmit = selectedClassroomId && selectedStudentId && slotCount > 0 && availableCredits >= slotCount
+  const hasTeacherConflict = useMemo(() => {
+    if (!selectedTeacherId || !selectedDate) return false
+    return checkTeacherConflict(
+      selectedTeacherId,
+      selectedDate,
+      startTimeVal,
+      endTimeVal
+    )
+  }, [selectedTeacherId, selectedDate, startTimeVal, endTimeVal, checkTeacherConflict])
+
+  const canSubmit =
+    selectedClassroomId &&
+    selectedStudentId &&
+    selectedTeacherId &&
+    slotCount > 0 &&
+    availableCredits >= slotCount &&
+    !hasTeacherConflict &&
+    !submitting
 
   useEffect(() => {
     if (currentClassroom && startTimeVal) {
@@ -76,6 +98,17 @@ const BookingCreatePage: React.FC = () => {
     })
   }
 
+  const handleSelectTeacher = () => {
+    const active = getActiveTeachers()
+    Taro.showActionSheet({
+      itemList: active.map(t => `${t.name}（${t.level}）`),
+      success: (res) => {
+        const teacher = active[res.tapIndex]
+        setSelectedTeacherId(teacher.id)
+      }
+    })
+  }
+
   const handleSelectStudent = (studentId: string) => {
     setSelectedStudentId(studentId)
   }
@@ -96,7 +129,7 @@ const BookingCreatePage: React.FC = () => {
   }
 
   const handleSubmit = () => {
-    if (!canSubmit || !currentClassroom || !selectedStudent || submitting) return
+    if (!canSubmit || !currentClassroom || !selectedStudent || !selectedTeacher) return
 
     setSubmitting(true)
 
@@ -110,7 +143,9 @@ const BookingCreatePage: React.FC = () => {
       startTimeVal,
       endTimeVal,
       slotCount,
-      currentClassroom.slotDuration
+      currentClassroom.slotDuration,
+      selectedTeacherId,
+      selectedTeacher.name
     )
 
     setTimeout(() => {
@@ -127,6 +162,7 @@ const BookingCreatePage: React.FC = () => {
   }
 
   const activeStudents = students.filter(s => s.status === 'active')
+  const activeTeachers = getActiveTeachers()
 
   return (
     <View className={styles.page}>
@@ -150,6 +186,31 @@ const BookingCreatePage: React.FC = () => {
             {selectedDate || new Date().toISOString().split('T')[0]}
           </Text>
         </View>
+      </View>
+
+      <View className={styles.section}>
+        <View className={styles.sectionTitle}>
+          <View className={styles.sectionIcon}>👨‍🏫</View>
+          <Text>老师信息</Text>
+        </View>
+
+        <View className={styles.formItem} onClick={handleSelectTeacher}>
+          <Text className={styles.formLabel}>授课老师</Text>
+          <Text className={classnames(
+            styles.formValue,
+            !selectedTeacherId && styles.formValuePlaceholder
+          )}>
+            {selectedTeacher ? `${selectedTeacher.name}（${selectedTeacher.level}）` : '请选择老师'}
+          </Text>
+          <Text className={styles.formArrow}>›</Text>
+        </View>
+
+        {hasTeacherConflict && (
+          <View className={styles.conflictWarning}>
+            <Text className={styles.conflictIcon}>⚠️</Text>
+            <Text className={styles.conflictText}>该老师在此时段已有排课，请更换时间或老师</Text>
+          </View>
+        )}
       </View>
 
       <View className={styles.section}>

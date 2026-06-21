@@ -200,6 +200,129 @@
   }
 }
 
+.checkInPending {
+  color: $color-warning;
+}
+
+.checkInChecked {
+  color: $color-success;
+}
+
+.checkInAbsent {
+  color: $color-error;
+}
+
+.checkInLeave {
+  color: $color-text-tertiary;
+}
+
+.checkInCard {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-sm;
+}
+
+.checkInBtns {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.checkInBtn {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-md;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+
+  &.checkInSuccess {
+    background: $color-success;
+  }
+
+  &.checkInWarning {
+    background: $color-warning;
+  }
+
+  &.checkInDanger {
+    background: $color-error;
+  }
+}
+
+.checkInBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
+.checkInPanel {
+  margin-top: $spacing-md;
+}
+
+.checkInPanelLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.checkInTextarea {
+  width: 100%;
+  height: 160rpx;
+  padding: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  border: none;
+}
+
+.checkInPanelActions {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+}
+
+.checkInPanelBtn {
+  flex: 1;
+  height: 64rpx;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+
+  &.checkInPanelSecondary {
+    background: $color-bg-page;
+  }
+
+  &.checkInPanelPrimary {
+    background: $color-warning;
+  }
+
+  &.checkInPanelDanger {
+    background: $color-error;
+  }
+}
+
+.checkInPanelBtnText {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+
+  .checkInPanelSecondary & {
+    color: $color-text-secondary;
+  }
+
+  .checkInPanelPrimary &,
+  .checkInPanelDanger & {
+    color: $color-text-white;
+  }
+}
+
 .actionBar {
   position: fixed;
   bottom: 0;

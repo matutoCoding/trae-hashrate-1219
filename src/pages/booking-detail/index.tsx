@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, Button } from '@tarojs/components'
+import { View, Text, Button, Textarea } from '@tarojs/components'
 import Taro from '@tarojs/taro'
 import { useRouter } from '@tarojs/taro'
 import styles from './index.module.scss'
@@ -8,19 +8,21 @@ import { useBookingStore } from '@/store/bookingStore'
 import { useStudentStore } from '@/store/studentStore'
 import { useCreditStore } from '@/store/creditStore'
 import { useClassroomStore } from '@/store/classroomStore'
+import type { CheckInStatus } from '@/types/booking'
 
 const BookingDetailPage: React.FC = () => {
   const router = useRouter()
   const bookingId = router.params.id
 
-  const { getBooking, cancelBooking, cancelPartialBooking, fetchBookings, bookings } = useBookingStore()
+  const { getBooking, cancelBooking, cancelPartialBooking, fetchBookings, bookings, checkInBooking } = useBookingStore()
   const { getStudent, fetchStudents } = useStudentStore()
   const { getPoolByClassId, fetchPools } = useCreditStore()
   const { getClassroom, fetchClassrooms } = useClassroomStore()
 
   const [booking, setBooking] = useState<ReturnType<typeof getBooking>>(undefined)
   const [selectedSlots, setSelectedSlots] = useState<Set<number>>(new Set())
-  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [checkInRemark, setCheckInRemark] = useState('')
+  const [showCheckInPanel, setShowCheckInPanel] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -159,6 +161,55 @@ const BookingDetailPage: React.FC = () => {
     })
   }
 
+  const handleCheckIn = (status: 'checked_in' | 'absent' | 'leave') => {
+    if (!booking) return
+
+    const statusText = {
+      checked_in: '已到课',
+      absent: '缺勤',
+      leave: '请假'
+    }[status]
+
+    Taro.showModal({
+      title: `确认${statusText}`,
+      content: status === 'checked_in'
+        ? `确认${booking.studentName}已到课？\n确认后将从冻结额度中正式扣除${booking.slotCount}课时。`
+        : status === 'absent'
+          ? `确认${booking.studentName}缺勤？\n缺勤将照常从冻结额度中扣除${booking.slotCount}课时。`
+          : `确认${booking.studentName}请假？\n请假不扣课时，${booking.slotCount}课时将退回额度池。`,
+      confirmText: `确认${statusText}`,
+      confirmColor: status === 'checked_in' ? '#00B42A' : status === 'absent' ? '#F53F3F' : '#FF7D00',
+      success: (res) => {
+        if (res.confirm) {
+          const success = checkInBooking(
+            booking.id,
+            status,
+            '老师',
+            checkInRemark || undefined
+          )
+          if (success) {
+            Taro.showToast({ title: `${statusText}成功`, icon: 'success' })
+            setShowCheckInPanel(false)
+            setCheckInRemark('')
+            setTimeout(() => {
+              const updated = getBooking(bookingId || '')
+              if (updated) setBooking(updated)
+            }, 800)
+          } else {
+            Taro.showToast({ title: '操作失败', icon: 'error' })
+          }
+        }
+      }
+    })
+  }
+
+  const checkInStatusConfig: Record<CheckInStatus, { text: string; className: string }> = {
+    pending: { text: '待签到', className: styles.checkInPending },
+    checked_in: { text: '已到课', className: styles.checkInChecked },
+    absent: { text: '缺勤', className: styles.checkInAbsent },
+    leave: { text: '请假', className: styles.checkInLeave }
+  }
+
   if (!booking) {
     return (
       <View className={styles.page}>
@@ -170,14 +221,16 @@ const BookingDetailPage: React.FC = () => {
   }
 
   const duration = booking.slotCount
+  const checkInStatus = checkInStatusConfig[booking.checkInStatus]
 
   const statusConfig = {
     active: { text: '已预约', className: styles.infoValueSuccess },
     cancelled: { text: '已取消', className: styles.infoValueError },
     completed: { text: '已完成', className: styles.infoValue }
   }
-
   const status = statusConfig[booking.status]
+
+  const canCheckIn = booking.status === 'active' && booking.checkInStatus === 'pending'
 
   return (
     <View className={styles.page}>
@@ -204,6 +257,13 @@ const BookingDetailPage: React.FC = () => {
         </View>
 
         <View className={styles.infoRow}>
+          <Text className={styles.infoLabel}>签到状态</Text>
+          <Text className={classnames(styles.infoValue, checkInStatus.className)}>
+            {checkInStatus.text}
+          </Text>
+        </View>
+
+        <View className={styles.infoRow}>
           <Text className={styles.infoLabel}>预约日期</Text>
           <Text className={styles.infoValue}>{booking.date}</Text>
         </View>
@@ -212,6 +272,13 @@ const BookingDetailPage: React.FC = () => {
           <Text className={styles.infoLabel}>上课教室</Text>
           <Text className={classnames(styles.infoValue, styles.infoValueHighlight)}>
             {booking.classroomName}
+          </Text>
+        </View>
+
+        <View className={styles.infoRow}>
+          <Text className={styles.infoLabel}>授课老师</Text>
+          <Text className={classnames(styles.infoValue, styles.infoValueHighlight)}>
+            {booking.teacherName || '未安排'}
           </Text>
         </View>
 
@@ -224,6 +291,13 @@ const BookingDetailPage: React.FC = () => {
           </View>
         )}
 
+        {booking.remark && (
+          <View className={styles.infoRow}>
+            <Text className={styles.infoLabel}>备注</Text>
+            <Text className={styles.infoValue}>{booking.remark}</Text>
+          </View>
+        )}
+
         {booking.cancelReason && (
           <View className={styles.cancelReason}>
             <Text className={styles.cancelReasonText}>
@@ -232,6 +306,72 @@ const BookingDetailPage: React.FC = () => {
           </View>
         )}
       </View>
+
+      {canCheckIn && (
+        <View className={styles.checkInCard}>
+          <View className={styles.cardTitle}>
+            <View className={styles.cardTitleIcon}>✅</View>
+            <Text>课后签到</Text>
+          </View>
+
+          {!showCheckInPanel ? (
+            <View className={styles.checkInBtns}>
+              <Button
+                className={classnames(styles.checkInBtn, styles.checkInSuccess)}
+                onClick={() => handleCheckIn('checked_in')}
+              >
+                <Text className={styles.checkInBtnText}>已到课</Text>
+              </Button>
+              <Button
+                className={classnames(styles.checkInBtn, styles.checkInWarning)}
+                onClick={() => setShowCheckInPanel(true)}
+              >
+                <Text className={styles.checkInBtnText}>请假</Text>
+              </Button>
+              <Button
+                className={classnames(styles.checkInBtn, styles.checkInDanger)}
+                onClick={() => setShowCheckInPanel(true)}
+              >
+                <Text className={styles.checkInBtnText}>缺勤</Text>
+              </Button>
+            </View>
+          ) : (
+            <View className={styles.checkInPanel}>
+              <Text className={styles.checkInPanelLabel}>备注（选填）</Text>
+              <Textarea
+                className={styles.checkInTextarea}
+                placeholder='请输入备注信息...'
+                value={checkInRemark}
+                onInput={(e) => setCheckInRemark(e.detail.value)}
+                maxlength={200}
+              />
+              <View className={styles.checkInPanelActions}>
+                <Button
+                  className={classnames(styles.checkInPanelBtn, styles.checkInPanelSecondary)}
+                  onClick={() => {
+                    setShowCheckInPanel(false)
+                    setCheckInRemark('')
+                  }}
+                >
+                  <Text className={styles.checkInPanelBtnText}>取消</Text>
+                </Button>
+                <Button
+                  className={classnames(styles.checkInPanelBtn, styles.checkInPanelPrimary)}
+                  onClick={() => handleCheckIn('leave')}
+                >
+                  <Text className={styles.checkInPanelBtnText}>确认请假</Text>
+                </Button>
+                <Button
+                  className={classnames(styles.checkInPanelBtn, styles.checkInPanelDanger)}
+                  onClick={() => handleCheckIn('absent')}
+                >
+                  <Text className={styles.checkInPanelBtnText}>确认缺勤</Text>
+                </Button>
+              </View>
+            </View>
+          )}
+        </View>
+      )}
 
       {booking.status === 'active' && booking.isMerged && booking.slotCount > 1 && (
         <View className={styles.slotSelectionCard}>
@@ -329,6 +469,17 @@ const BookingDetailPage: React.FC = () => {
           </View>
 
           <View className={styles.infoRow}>
+            <Text className={styles.infoLabel}>扣减类型</Text>
+            <Text className={styles.infoValue}>
+              {booking.checkInStatus === 'pending' && '预约占用（冻结）'}
+              {booking.checkInStatus === 'checked_in' && '实际消课'}
+              {booking.checkInStatus === 'absent' && '缺勤扣课'}
+              {booking.checkInStatus === 'leave' && '请假退还'}
+              {booking.status === 'cancelled' && '已取消（已退还）'}
+            </Text>
+          </View>
+
+          <View className={styles.infoRow}>
             <Text className={styles.infoLabel}>班级额度池</Text>
             <Text className={styles.infoValue}>{pool.className}</Text>
           </View>
@@ -338,6 +489,11 @@ const BookingDetailPage: React.FC = () => {
             <Text className={classnames(styles.infoValue, styles.infoValueSuccess)}>
               {pool.totalCredits - pool.usedCredits - pool.frozenCredits} 课时
             </Text>
+          </View>
+
+          <View className={styles.infoRow}>
+            <Text className={styles.infoLabel}>冻结额度</Text>
+            <Text className={styles.infoValue}>{pool.frozenCredits} 课时</Text>
           </View>
 
           <View className={styles.infoRow}>

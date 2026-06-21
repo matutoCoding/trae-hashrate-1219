@@ -45,6 +45,9 @@ const TimeSlot: React.FC<TimeSlotProps> = ({
       {booking && status === 'booked' && (
         <View className={styles.bookingInfo}>
           <Text className={styles.studentName}>{booking.studentName}</Text>
+          {booking.teacherName && (
+            <Text className={styles.teacherName}>{booking.teacherName}</Text>
+          )}
           {booking.isMerged && (
             <View className={styles.mergedTag}>连</View>
           )}
@@ -53,6 +56,9 @@ const TimeSlot: React.FC<TimeSlotProps> = ({
       {booking && status === 'merged' && (
         <View className={styles.bookingInfo}>
           <Text className={styles.studentName}>{booking.studentName}</Text>
+          {booking.teacherName && (
+            <Text className={styles.teacherName}>{booking.teacherName}</Text>
+          )}
         </View>
       )}
     </View>

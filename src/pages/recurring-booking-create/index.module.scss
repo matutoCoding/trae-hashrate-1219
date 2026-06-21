@@ -1,0 +1,448 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 140rpx;
+}
+
+.header {
+  padding: $spacing-xl $page-padding $spacing-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.subtitle {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.section {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-sm;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.sectionIcon {
+  font-size: $font-size-lg;
+}
+
+.formItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.formLabel {
+  flex-shrink: 0;
+  width: 160rpx;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.formValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  text-align: right;
+}
+
+.formValuePlaceholder {
+  color: $color-text-placeholder;
+}
+
+.formArrow {
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+  font-size: 32rpx;
+}
+
+.weekdaySelector {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.weekdayBtns {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: $spacing-md;
+  justify-content: space-between;
+}
+
+.weekdayBtn {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  background: $color-bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+
+  &.weekdayBtnActive {
+    background: $color-primary;
+  }
+}
+
+.weekdayBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .weekdayBtnActive & {
+    color: $color-text-white;
+  }
+}
+
+.weekSelector,
+.slotSelector {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.counter {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  margin-left: auto;
+}
+
+.counterBtn {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: $color-bg-page;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  min-width: auto;
+
+  &::after {
+    border: none;
+  }
+}
+
+.counterBtnText {
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.counterValue {
+  display: flex;
+  align-items: baseline;
+  gap: 4rpx;
+  min-width: 80rpx;
+  justify-content: center;
+}
+
+.counterNum {
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  font-weight: $font-weight-bold;
+}
+
+.counterUnit {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timeSelector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.timeItem {
+  flex: 1;
+  text-align: center;
+}
+
+.timeValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  margin-top: $spacing-xs;
+}
+
+.timeConnector {
+  flex-shrink: 0;
+  width: 60rpx;
+  text-align: center;
+  color: $color-text-tertiary;
+  font-size: $font-size-md;
+}
+
+.studentList {
+  max-height: 480rpx;
+  overflow-y: auto;
+}
+
+.studentOption {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-sm;
+  background: $color-bg-page;
+  transition: all $transition-base;
+
+  &.selected {
+    background: rgba($color-primary, 0.08);
+    border: 2rpx solid $color-primary;
+  }
+}
+
+.studentAvatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: $color-primary-light;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: $spacing-md;
+}
+
+.studentAvatarText {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.studentInfo {
+  flex: 1;
+}
+
+.studentName {
+  font-size: $font-size-base;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.studentMeta {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.studentCheck {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 2rpx solid $color-border;
+  flex-shrink: 0;
+  transition: all $transition-base;
+
+  .selected & {
+    background: $color-primary;
+    border-color: $color-primary;
+  }
+}
+
+.previewCard {
+  margin: $spacing-md $page-padding;
+  background: linear-gradient(135deg, rgba($color-primary, 0.08) 0%, rgba($color-accent, 0.08) 100%);
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  border: 2rpx solid rgba($color-primary, 0.15);
+}
+
+.previewHeader {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.previewTitle {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.previewStats {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.previewStat {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  text-align: center;
+}
+
+.previewStatValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.previewStatLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.previewDates {
+  margin-top: $spacing-sm;
+}
+
+.previewDatesLabel {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.previewDateList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-xs;
+  align-items: center;
+}
+
+.previewDateTag {
+  padding: 8rpx 16rpx;
+  background: $color-bg-card;
+  border-radius: $radius-sm;
+}
+
+.previewDateText {
+  font-size: 22rpx;
+  color: $color-text-secondary;
+}
+
+.previewMore {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.creditInfo {
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx dashed rgba($color-border, 0.5);
+}
+
+.creditInfoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.creditInfoLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.creditInfoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+
+  &.success {
+    color: $color-success;
+  }
+
+  &.error {
+    color: $color-error;
+  }
+
+  &.warning {
+    color: $color-warning;
+  }
+}
+
+.tipBox {
+  margin: $spacing-md $page-padding;
+  padding: $spacing-md;
+  background: rgba(0, 180, 42, 0.05);
+  border-radius: $radius-md;
+}
+
+.tipText {
+  font-size: $font-size-xs;
+  color: $color-success;
+  line-height: 1.6;
+}
+
+.actionBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc(#{$spacing-md} + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.actionBtn {
+  width: 100%;
+  height: 88rpx;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+
+  &.primary {
+    background: $color-primary;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.actionBtnText {
+  font-size: $font-size-base;
+  color: $color-text-white;
+  font-weight: $font-weight-semibold;
+}
