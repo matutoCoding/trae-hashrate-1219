@@ -74,6 +74,15 @@ export class CreditPoolManager {
     console.log('[CreditPool] 初始化额度池:', pools.length, '个')
   }
 
+  initRecords(records: CreditRecord[]): void {
+    this.records = [...records]
+    console.log('[CreditPool] 初始化额度明细:', records.length, '条')
+  }
+
+  getAllRecords(): CreditRecord[] {
+    return [...this.records]
+  }
+
   getPool(poolId: string): CreditPool | undefined {
     return this.pools.get(poolId)
   }

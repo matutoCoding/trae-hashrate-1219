@@ -351,3 +351,145 @@
   font-size: $font-size-sm;
   color: $color-error;
 }
+
+.slotSelectionCard {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  border: 2rpx dashed rgba(212, 165, 116, 0.5);
+}
+
+.slotSelectionHint {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.slotGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.slotCard {
+  position: relative;
+  padding: $spacing-md $spacing-sm;
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+  border-radius: $radius-md;
+  text-align: center;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.slotCardSelected {
+  background: rgba(245, 63, 63, 0.08);
+  border-color: $color-error;
+
+  .slotIndex {
+    color: $color-error;
+  }
+
+  .slotTime {
+    color: $color-error;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.slotCheck {
+  position: absolute;
+  top: 8rpx;
+  right: 8rpx;
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  background: $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slotCardSelected .slotCheck {
+  background: $color-error;
+}
+
+.slotCheckIcon {
+  color: white;
+  font-size: 20rpx;
+  font-weight: bold;
+}
+
+.slotIndex {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 6rpx;
+}
+
+.slotTime {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.slotTimeSub {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 2rpx;
+}
+
+.slotSelectionActions {
+  display: flex;
+  gap: $spacing-sm;
+}
+
+.selectionBtn {
+  flex: 1;
+  height: 72rpx;
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+
+  &:active {
+    opacity: 0.85;
+  }
+}
+
+.selectionSecondary {
+  background: $color-bg-page;
+  border: 2rpx solid $color-border;
+
+  .selectionBtnText {
+    color: $color-text-secondary;
+  }
+}
+
+.selectionDanger {
+  background: $color-error;
+  flex: 1.4;
+
+  .selectionBtnText {
+    color: $color-text-white;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.selectionDisabled {
+  opacity: 0.5;
+
+  &:active {
+    opacity: 0.5;
+  }
+}
+
+.selectionBtnText {
+  font-size: $font-size-sm;
+}

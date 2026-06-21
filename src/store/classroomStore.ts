@@ -6,6 +6,7 @@ interface ClassroomState {
   classrooms: Classroom[]
   currentClassroom: Classroom | null
   loading: boolean
+  initialized: boolean
   fetchClassrooms: () => void
   getClassroom: (id: string) => Classroom | undefined
   addClassroom: (data: ClassroomFormData) => Classroom
@@ -18,13 +19,23 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
   classrooms: [],
   currentClassroom: null,
   loading: false,
+  initialized: false,
 
   fetchClassrooms: () => {
+    const { initialized, classrooms } = get()
+    if (initialized) {
+      console.log('[ClassroomStore] 已初始化，跳过重置，当前教室数:', classrooms.length)
+      return
+    }
     set({ loading: true })
-    console.log('[ClassroomStore] 获取教室列表')
+    console.log('[ClassroomStore] 首次加载，初始化 mock 数据')
     setTimeout(() => {
-      set({ classrooms: mockClassrooms, loading: false })
-      console.log('[ClassroomStore] 教室列表加载完成，共', mockClassrooms.length, '个')
+      set({
+        classrooms: [...mockClassrooms],
+        loading: false,
+        initialized: true
+      })
+      console.log('[ClassroomStore] 初始化完成，共', mockClassrooms.length, '个教室')
     }, 300)
   },
 
@@ -39,9 +50,10 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
       createdAt: new Date().toISOString()
     }
     set(state => ({
-      classrooms: [...state.classrooms, newClassroom]
+      classrooms: [...state.classrooms, newClassroom],
+      initialized: true
     }))
-    console.log('[ClassroomStore] 新增教室:', newClassroom.name)
+    console.log('[ClassroomStore] 新增教室:', newClassroom.name, '总数:', get().classrooms.length)
     return newClassroom
   },
 
@@ -54,7 +66,7 @@ export const useClassroomStore = create<ClassroomState>((set, get) => ({
       const newClassrooms = [...state.classrooms]
       newClassrooms[index] = updated
       console.log('[ClassroomStore] 更新教室:', updated.name)
-      return { classrooms: newClassrooms }
+      return { classrooms: newClassrooms, initialized: true }
     })
     return updated
   },

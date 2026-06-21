@@ -10,6 +10,7 @@ interface BookingState {
   mergedBookings: Booking[]
   currentBooking: Booking | null
   loading: boolean
+  initialized: boolean
   fetchBookings: (classroomId?: string, date?: string) => void
   getBookingsByDate: (date: string, classroomId?: string) => Booking[]
   getBookingsByStudent: (studentId: string) => Booking[]
@@ -44,25 +45,28 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   mergedBookings: [],
   currentBooking: null,
   loading: false,
+  initialized: false,
 
-  fetchBookings: (classroomId?: string, date?: string) => {
+  fetchBookings: () => {
+    const { initialized, bookings } = get()
+    if (initialized) {
+      const activeBookings = bookings.filter(b => b.status === 'active')
+      set({ mergedBookings: mergeAdjacentBookings(activeBookings) })
+      console.log('[BookingStore] 已初始化，跳过重置，当前预约数:', bookings.length, '合并后:', mergeAdjacentBookings(activeBookings).length)
+      return
+    }
     set({ loading: true })
-    console.log('[BookingStore] 获取预约列表')
+    console.log('[BookingStore] 首次加载，初始化 mock 数据')
     setTimeout(() => {
-      let bookings = mockBookings
-      if (classroomId) {
-        bookings = bookings.filter(b => b.classroomId === classroomId)
-      }
-      if (date) {
-        bookings = bookings.filter(b => b.date === date)
-      }
-      const merged = mergeAdjacentBookings(bookings)
+      const initialBookings = [...mockBookings]
+      const merged = mergeAdjacentBookings(initialBookings.filter(b => b.status === 'active'))
       set({
-        bookings,
+        bookings: initialBookings,
         mergedBookings: merged,
-        loading: false
+        loading: false,
+        initialized: true
       })
-      console.log('[BookingStore] 预约加载完成，原始:', bookings.length, '条，合并后:', merged.length, '条')
+      console.log('[BookingStore] 初始化完成，原始:', initialBookings.length, '条，合并后:', merged.length, '条')
     }, 300)
   },
 
@@ -147,7 +151,8 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       })
       return {
         bookings: newBookings,
-        mergedBookings: merged
+        mergedBookings: merged,
+        initialized: true
       }
     })
 
@@ -183,6 +188,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       console.log('[BookingStore] 取消预约:', {
         学员: booking.studentName,
         时段: `${booking.date} ${booking.startTime}-${booking.endTime}`,
+        退课时数: booking.slotCount,
         原因: reason
       })
       return {
@@ -196,14 +202,24 @@ export const useBookingStore = create<BookingState>((set, get) => ({
 
   cancelPartialBooking: (bookingId, cancelStartTime, cancelEndTime, slotDuration, reason) => {
     const booking = get().bookings.find(b => b.id === bookingId)
-    if (!booking || !booking.isMerged || booking.status !== 'active') {
+    if (!booking || booking.status !== 'active') {
       return false
     }
 
-    const remainings = cancelMiddleSlot(booking, cancelStartTime, cancelEndTime, slotDuration)
-    if (remainings.length === 0 && booking.startTime === cancelStartTime && booking.endTime === cancelEndTime) {
+    if (!booking.isMerged && booking.slotCount === 1) {
       return get().cancelBooking(bookingId, reason)
     }
+
+    const cancelStartMin = timeToMinutes(cancelStartTime)
+    const cancelEndMin = timeToMinutes(cancelEndTime)
+    const bookStartMin = timeToMinutes(booking.startTime)
+    const bookEndMin = timeToMinutes(booking.endTime)
+
+    if (cancelStartMin === bookStartMin && cancelEndMin === bookEndMin) {
+      return get().cancelBooking(bookingId, reason)
+    }
+
+    const remainings = cancelMiddleSlot(booking, cancelStartTime, cancelEndTime, slotDuration)
 
     const cancelSlotCount = Math.floor(
       (timeToMinutes(cancelEndTime) - timeToMinutes(cancelStartTime)) / slotDuration
@@ -226,15 +242,25 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       const otherBookings = state.bookings.filter(b => b.id !== bookingId)
       const cancelledBooking: Booking = {
         ...booking,
+        id: `${bookingId}_cancelled_${Date.now()}`,
         startTime: cancelStartTime,
         endTime: cancelEndTime,
         slotCount: cancelSlotCount,
+        isMerged: false,
+        mergedFromSlots: undefined,
         status: 'cancelled',
         cancelledAt: new Date().toISOString(),
         cancelReason: reason
       }
       const newBookings = [...otherBookings, cancelledBooking, ...remainings]
       const activeBookings = newBookings.filter(b => b.status === 'active')
+      console.log('[BookingStore] 部分退订成功:', {
+        学员: booking.studentName,
+        原时段: `${booking.startTime}-${booking.endTime}`,
+        退订时段: `${cancelStartTime}-${cancelEndTime}`,
+        退课时数: cancelSlotCount,
+        剩余段数: remainings.length
+      })
       return {
         bookings: newBookings,
         mergedBookings: mergeAdjacentBookings(activeBookings)

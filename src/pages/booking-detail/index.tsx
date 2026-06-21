@@ -7,19 +7,26 @@ import classnames from 'classnames'
 import { useBookingStore } from '@/store/bookingStore'
 import { useStudentStore } from '@/store/studentStore'
 import { useCreditStore } from '@/store/creditStore'
+import { useClassroomStore } from '@/store/classroomStore'
 
 const BookingDetailPage: React.FC = () => {
   const router = useRouter()
   const bookingId = router.params.id
 
   const { getBooking, cancelBooking, cancelPartialBooking, fetchBookings, bookings } = useBookingStore()
-  const { getStudent } = useStudentStore()
-  const { getPoolByClassId } = useCreditStore()
+  const { getStudent, fetchStudents } = useStudentStore()
+  const { getPoolByClassId, fetchPools } = useCreditStore()
+  const { getClassroom, fetchClassrooms } = useClassroomStore()
 
   const [booking, setBooking] = useState<ReturnType<typeof getBooking>>(undefined)
+  const [selectedSlots, setSelectedSlots] = useState<Set<number>>(new Set())
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   useEffect(() => {
     fetchBookings()
+    fetchStudents()
+    fetchPools()
+    fetchClassrooms()
   }, [])
 
   useEffect(() => {
@@ -32,22 +39,59 @@ const BookingDetailPage: React.FC = () => {
   const student = booking ? getStudent(booking.studentId) : undefined
   const classId = student?.classId
   const pool = classId ? getPoolByClassId(classId) : undefined
+  const classroom = booking ? getClassroom(booking.classroomId) : undefined
+  const slotDuration = classroom?.slotDuration || 60
 
-  const handleCancel = () => {
+  const toggleSlot = (index: number) => {
+    setSelectedSlots(prev => {
+      const next = new Set(prev)
+      if (next.has(index)) {
+        next.delete(index)
+      } else {
+        next.add(index)
+      }
+      return next
+    })
+  }
+
+  const selectAllSlots = () => {
+    if (!booking) return
+    const all = new Set<number>()
+    for (let i = 0; i < booking.slotCount; i++) {
+      all.add(i)
+    }
+    setSelectedSlots(all)
+  }
+
+  const clearSelection = () => {
+    setSelectedSlots(new Set())
+  }
+
+  const getSlotTime = (index: number): { start: string; end: string } => {
+    if (!booking) return { start: '', end: '' }
+    const startMinutes = timeToMinutes(booking.startTime) + index * slotDuration
+    const endMinutes = startMinutes + slotDuration
+    return {
+      start: minutesToTime(startMinutes),
+      end: minutesToTime(endMinutes)
+    }
+  }
+
+  const handleCancelAll = () => {
     if (!booking) return
     Taro.showModal({
-      title: '确认取消',
-      content: `确定要取消${booking.studentName}的预约吗？\n时段：${booking.startTime}-${booking.endTime}`,
+      title: '确认取消全部预约',
+      content: `确定要取消${booking.studentName}的全部预约吗？\n时段：${booking.startTime}-${booking.endTime}（${booking.slotCount}课时）\n\n取消后课时将退回到班级额度池。`,
       confirmText: '取消预约',
       confirmColor: '#F53F3F',
       success: (res) => {
         if (res.confirm) {
           const success = cancelBooking(booking.id, '用户主动取消')
           if (success) {
-            Taro.showToast({ title: '取消成功', icon: 'success' })
+            Taro.showToast({ title: '取消成功，课时已退还', icon: 'success' })
             setTimeout(() => {
               Taro.navigateBack()
-            }, 1000)
+            }, 1200)
           } else {
             Taro.showToast({ title: '取消失败', icon: 'error' })
           }
@@ -56,45 +100,63 @@ const BookingDetailPage: React.FC = () => {
     })
   }
 
-  const handleDemoSplit = () => {
-    if (!booking) return
-    Taro.showActionSheet({
-      itemList: ['从中间拆分成两段', '退订中间时段（保留前后）', '退订前段（保留下段）'],
-      success: (res) => {
-        const start = timeToMinutes(booking.startTime)
-        const end = timeToMinutes(booking.endTime)
-        const mid = Math.floor((start + end) / 2 / 60) * 60
-        const midTime = minutesToTime(mid)
+  const handlePartialCancel = () => {
+    if (!booking || selectedSlots.size === 0) return
 
-        if (res.tapIndex === 0) {
-          Taro.showToast({
-            title: `从${midTime}拆分`,
-            icon: 'none'
-          })
-          console.log('[BookingDetail] 演示拆分：从', midTime, '拆分成两段')
-        } else if (res.tapIndex === 1) {
-          Taro.showToast({
-            title: '退订中间，保留两端',
-            icon: 'none'
-          })
-          console.log('[BookingDetail] 演示中途退订：退订中间时段')
-        } else {
-          Taro.showToast({
-            title: '退订前段',
-            icon: 'none'
-          })
-          console.log('[BookingDetail] 演示部分退订：退订前段')
+    const sortedIndices = Array.from(selectedSlots).sort((a, b) => a - b)
+    const startIdx = sortedIndices[0]
+    const endIdx = sortedIndices[sortedIndices.length - 1]
+
+    const isContinuous = sortedIndices.every((idx, i) => idx === startIdx + i)
+
+    if (!isContinuous) {
+      Taro.showToast({
+        title: '请选择连续的时段',
+        icon: 'none',
+        duration: 2000
+      })
+      return
+    }
+
+    const cancelStart = getSlotTime(startIdx).start
+    const cancelEnd = getSlotTime(endIdx).end
+    const refundCount = selectedSlots.size
+
+    Taro.showModal({
+      title: '确认部分退订',
+      content: `将退订以下时段：\n${cancelStart} - ${cancelEnd}（${refundCount}课时）\n\n剩余课时将保留，${refundCount}课时将退回到班级额度池。`,
+      confirmText: '确认退订',
+      confirmColor: '#F53F3F',
+      success: (res) => {
+        if (res.confirm) {
+          const success = cancelPartialBooking(
+            booking.id,
+            cancelStart,
+            cancelEnd,
+            slotDuration,
+            '用户部分退订'
+          )
+          if (success) {
+            Taro.showToast({
+              title: `退订成功，退还${refundCount}课时`,
+              icon: 'success',
+              duration: 1500
+            })
+            setSelectedSlots(new Set())
+            setTimeout(() => {
+              const updated = getBooking(bookingId || '')
+              if (updated) {
+                setBooking(updated)
+              } else {
+                Taro.navigateBack()
+              }
+            }, 1000)
+          } else {
+            Taro.showToast({ title: '退订失败', icon: 'error' })
+          }
         }
       }
     })
-  }
-
-  const handleDemoMerge = () => {
-    Taro.showToast({
-      title: '合并：相邻同时段自动合并',
-      icon: 'none'
-    })
-    console.log('[BookingDetail] 演示合并功能')
   }
 
   if (!booking) {
@@ -171,6 +233,59 @@ const BookingDetailPage: React.FC = () => {
         )}
       </View>
 
+      {booking.status === 'active' && booking.isMerged && booking.slotCount > 1 && (
+        <View className={styles.slotSelectionCard}>
+          <View className={styles.cardTitle}>
+            <View className={styles.cardTitleIcon}>✂️</View>
+            <Text>部分退订 - 选择要退订的时段</Text>
+          </View>
+          <Text className={styles.slotSelectionHint}>
+            点击选择要退订的连续时段，退订后课时将自动退还到班级额度池
+          </Text>
+
+          <View className={styles.slotGrid}>
+            {Array.from({ length: booking.slotCount }, (_, i) => {
+              const time = getSlotTime(i)
+              const isSelected = selectedSlots.has(i)
+              return (
+                <View
+                  key={i}
+                  className={classnames(styles.slotCard, {
+                    [styles.slotCardSelected]: isSelected
+                  })}
+                  onClick={() => toggleSlot(i)}
+                >
+                  <View className={styles.slotCheck}>
+                    {isSelected && <Text className={styles.slotCheckIcon}>✓</Text>}
+                  </View>
+                  <Text className={styles.slotIndex}>第{i + 1}节</Text>
+                  <Text className={styles.slotTime}>{time.start}</Text>
+                  <Text className={styles.slotTimeSub}>至 {time.end}</Text>
+                </View>
+              )
+            })}
+          </View>
+
+          <View className={styles.slotSelectionActions}>
+            <Button className={classnames(styles.selectionBtn, styles.selectionSecondary)} onClick={clearSelection}>
+              <Text className={styles.selectionBtnText}>清空选择</Text>
+            </Button>
+            <Button className={classnames(styles.selectionBtn, styles.selectionSecondary)} onClick={selectAllSlots}>
+              <Text className={styles.selectionBtnText}>全选</Text>
+            </Button>
+            <Button
+              className={classnames(styles.selectionBtn, styles.selectionDanger, { [styles.selectionDisabled]: selectedSlots.size === 0 })}
+              disabled={selectedSlots.size === 0}
+              onClick={handlePartialCancel}
+            >
+              <Text className={styles.selectionBtnText}>
+                退订{selectedSlots.size > 0 ? `(${selectedSlots.size}课时)` : ''}
+              </Text>
+            </Button>
+          </View>
+        </View>
+      )}
+
       <View className={styles.infoCard}>
         <View className={styles.cardTitle}>
           <View className={styles.cardTitleIcon}>👤</View>
@@ -232,32 +347,6 @@ const BookingDetailPage: React.FC = () => {
         </View>
       )}
 
-      {booking.status === 'active' && booking.isMerged && (
-        <View className={styles.demoSection}>
-          <View className={styles.demoTitle}>
-            <View className={styles.demoIcon}>⚡</View>
-            <Text>合并拆分演示</Text>
-          </View>
-          <Text className={styles.demoDesc}>
-            此预约为连订合并时段，支持中途退订和拆分操作。系统会自动处理时段的合并与拆分。
-          </Text>
-          <View className={styles.demoActions}>
-            <Button
-              className={classnames(styles.demoBtn, styles.primary)}
-              onClick={handleDemoMerge}
-            >
-              <Text className={styles.demoBtnText}>合并原理</Text>
-            </Button>
-            <Button
-              className={classnames(styles.demoBtn, styles.warning)}
-              onClick={handleDemoSplit}
-            >
-              <Text className={styles.demoBtnText}>拆分演示</Text>
-            </Button>
-          </View>
-        </View>
-      )}
-
       {booking.status === 'active' && (
         <View className={styles.actionBar}>
           <Button
@@ -268,9 +357,9 @@ const BookingDetailPage: React.FC = () => {
           </Button>
           <Button
             className={classnames(styles.actionBtn, styles.danger)}
-            onClick={handleCancel}
+            onClick={handleCancelAll}
           >
-            <Text className={styles.actionBtnText}>取消预约</Text>
+            <Text className={styles.actionBtnText}>取消全部预约</Text>
           </Button>
         </View>
       )}
