@@ -263,3 +263,353 @@
   font-size: $font-size-xs;
   color: rgba(255, 255, 255, 0.7);
 }
+
+.creditStats {
+  display: flex;
+  padding: $spacing-md $spacing-lg;
+  gap: $spacing-sm;
+}
+
+.creditStatItem {
+  flex: 1;
+  padding: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  text-align: center;
+}
+
+.creditStatValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  margin-bottom: 4rpx;
+  display: block;
+
+  &.consume { color: $color-success; }
+  &.absent { color: $color-error; }
+  &.freeze { color: $color-primary; }
+  &.leave { color: $color-accent-dark; }
+}
+
+.creditStatLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.growthTabs {
+  display: flex;
+  border-bottom: 1rpx solid $color-divider;
+  background: $color-bg-page;
+}
+
+.growthTab {
+  flex: 1;
+  padding: $spacing-md $spacing-sm;
+  position: relative;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+  transition: all $transition-fast;
+
+  &.growthTabActive {
+    border-bottom: 4rpx solid $color-primary;
+    background: $color-bg-card;
+  }
+}
+
+.growthTabText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .growthTabActive & {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.growthTabBadge {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  background: $color-bg-hover;
+  padding: 2rpx 12rpx;
+  border-radius: $radius-sm;
+  min-width: 40rpx;
+  text-align: center;
+
+  .growthTabActive & {
+    background: $color-primary-light;
+    color: $color-primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.growthContent {
+  padding: $spacing-sm $spacing-lg;
+}
+
+.timeline {
+  padding: $spacing-sm 0;
+}
+
+.timelineItem {
+  display: flex;
+  position: relative;
+  padding-left: $spacing-lg;
+  padding-bottom: $spacing-lg;
+
+  &:last-child {
+    padding-bottom: 0;
+
+    .timelineLine { display: none; }
+  }
+}
+
+.timelineDot {
+  position: absolute;
+  left: 6rpx;
+  top: 10rpx;
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  background: $color-primary;
+  border: 4rpx solid $color-primary-light;
+  z-index: 2;
+}
+
+.timelineLine {
+  position: absolute;
+  left: 16rpx;
+  top: 36rpx;
+  width: 2rpx;
+  bottom: 0;
+  background: $color-border;
+}
+
+.timelineContent {
+  flex: 1;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-sm $spacing-md;
+}
+
+.rankChange {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-xs;
+}
+
+.rankFrom {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
+.rankTo {
+  font-size: $font-size-sm;
+  color: $color-accent-dark;
+  font-weight: $font-weight-bold;
+}
+
+.rankArrowBox {
+  width: 40rpx;
+  height: 40rpx;
+  background: $color-success;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rankArrow {
+  font-size: 24rpx;
+  color: $color-text-white;
+  font-weight: $font-weight-bold;
+}
+
+.rankMeta {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4rpx;
+}
+
+.rankRemark {
+  margin-top: 6rpx;
+  padding: 8rpx 12rpx;
+  background: $color-bg-card;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.bookingTabs {
+  display: flex;
+  gap: $spacing-md;
+  padding: $spacing-sm 0;
+  margin-bottom: $spacing-sm;
+}
+
+.bookingTab {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.bookingTabActive {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.bookingRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  transition: background $transition-fast;
+
+  &:last-child { border-bottom: none; }
+  &:active { background: $color-bg-hover; }
+  &.inactive { opacity: 0.65; }
+}
+
+.bookingTime {
+  width: 100rpx;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rpx;
+}
+
+.bookingDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.bookingHour {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.bookingInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.bookingRoom {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+}
+
+.bookingTeacher {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  display: block;
+  margin: 2rpx 0;
+}
+
+.bookingHourRange {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.bookingStatus {
+  font-size: $font-size-xs;
+  padding: 4rpx 10rpx;
+  border-radius: $radius-xs;
+  flex-shrink: 0;
+
+  &.statusActive {
+    background: rgba(0, 180, 42, 0.1);
+    color: $color-success;
+  }
+  &.statusCompleted {
+    background: rgba(134, 144, 156, 0.15);
+    color: $color-text-tertiary;
+  }
+  &.statusCancelled {
+    background: rgba(245, 63, 63, 0.1);
+    color: $color-error;
+  }
+}
+
+.recordRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  transition: background $transition-fast;
+
+  &:last-child { border-bottom: none; }
+  &:active { background: $color-bg-hover; }
+}
+
+.recordIcon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-md;
+  color: $color-text-white;
+
+  &.recharge { background: $color-success; }
+  &.adjust { background: $color-accent; }
+  &.freeze { background: $color-primary; }
+  &.consume { background: $color-success; }
+  &.refund { background: $color-accent-dark; }
+  &.absent { background: $color-error; }
+  &.leave { background: $color-accent-dark; }
+}
+
+.recordInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.recordTitle {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  display: block;
+}
+
+.recordSub {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  display: block;
+  margin-top: 2rpx;
+}
+
+.recordLink {
+  font-size: $font-size-xs;
+  color: $color-primary;
+  display: block;
+  margin-top: 4rpx;
+  font-weight: $font-weight-medium;
+}
+
+.recordAmount {
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  flex-shrink: 0;
+
+  &.recharge { color: $color-success; }
+  &.adjust { color: $color-accent; }
+  &.freeze { color: $color-primary; }
+  &.consume { color: $color-success; }
+  &.refund { color: $color-accent-dark; }
+  &.absent { color: $color-error; }
+  &.leave { color: $color-accent-dark; }
+}
+

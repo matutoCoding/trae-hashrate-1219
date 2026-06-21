@@ -8,12 +8,14 @@ interface BookingCardProps {
   booking: Booking
   onClick?: () => void
   showClassroom?: boolean
+  showTeacher?: boolean
 }
 
 const BookingCard: React.FC<BookingCardProps> = ({
   booking,
   onClick,
-  showClassroom = true
+  showClassroom = true,
+  showTeacher = false
 }) => {
   const statusConfig = {
     active: { text: '已预约', className: styles.statusActive },
@@ -48,6 +50,10 @@ const BookingCard: React.FC<BookingCardProps> = ({
 
         {showClassroom && (
           <Text className={styles.classroom}>{booking.classroomName}</Text>
+        )}
+
+        {showTeacher && booking.teacherName && (
+          <Text className={styles.teacher}>👨‍🏫 {booking.teacherName}</Text>
         )}
 
         <View className={styles.meta}>

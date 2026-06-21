@@ -39,6 +39,11 @@
     opacity: 0.6;
   }
 
+  &.cross_room {
+    background: rgba(255, 125, 0, 0.08);
+    border: 2rpx dashed $color-warning;
+  }
+
   &.selected {
     background: $color-primary;
     border-color: $color-primary-dark;

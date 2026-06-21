@@ -409,3 +409,193 @@
     color: $color-text-white;
   }
 }
+
+.manualSection {
+  margin: $spacing-md $page-padding;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.manualTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-sm;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.manualIcon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: rgba(45, 91, 137, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+.manualDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.manualActions {
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.manualBtn {
+  flex: 1;
+  min-width: 45%;
+  padding: $spacing-md 0;
+  border-radius: $radius-md;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  border: none;
+  transition: all $transition-fast;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+}
+
+.manualBtnIcon {
+  font-size: 40rpx;
+}
+
+.manualBtnText {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.freezeBtn {
+  background: rgba(45, 91, 137, 0.08);
+  .manualBtnIcon { color: $color-primary; }
+  .manualBtnText { color: $color-primary; }
+}
+
+.consumeBtn {
+  background: rgba(0, 180, 42, 0.08);
+  .manualBtnIcon { color: $color-success; }
+  .manualBtnText { color: $color-success; }
+}
+
+.leaveBtn {
+  background: rgba(255, 125, 0, 0.08);
+  .manualBtnIcon { color: $color-warning; }
+  .manualBtnText { color: $color-warning; }
+}
+
+.absentBtn {
+  background: rgba(245, 63, 63, 0.08);
+  .manualBtnIcon { color: $color-error; }
+  .manualBtnText { color: $color-error; }
+}
+
+.summaryGrid {
+  display: flex;
+  flex-wrap: wrap;
+  padding: $spacing-sm $spacing-lg $spacing-lg;
+}
+
+.summaryItem {
+  width: 33.33%;
+  padding: $spacing-sm 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.summaryLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.summaryValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+
+  &.recharge, &.refund, &.leave { color: $color-success; }
+  &.freeze { color: $color-primary; }
+  &.consume, &.absent { color: $color-error; }
+}
+
+.filterRow {
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.filterPicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $spacing-md;
+  background: $color-bg-page;
+  border-radius: $radius-sm;
+}
+
+.filterPickerText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.filterPickerArrow {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+  margin-left: $spacing-sm;
+}
+
+.typeTabs {
+  display: flex;
+  gap: $spacing-sm;
+  padding: $spacing-md $spacing-lg;
+  white-space: nowrap;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.typeTab {
+  padding: 10rpx 24rpx;
+  border-radius: $radius-button;
+  background: $color-bg-page;
+  flex-shrink: 0;
+  transition: all $transition-fast;
+}
+
+.typeTabActive {
+  background: $color-primary;
+}
+
+.typeTabText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+
+  .typeTabActive & {
+    color: $color-text-white;
+  }
+}
+
+.recordLink {
+  display: block;
+  margin-top: 4rpx;
+  font-size: $font-size-xs;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}

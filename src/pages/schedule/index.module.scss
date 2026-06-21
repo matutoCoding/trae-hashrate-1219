@@ -323,3 +323,62 @@
   color: $color-text-secondary;
   font-weight: $font-weight-medium;
 }
+
+.teacherViewBadge {
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-md;
+}
+
+.teacherViewName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  display: block;
+  margin-bottom: 4rpx;
+}
+
+.teacherViewInfo {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.legendDot {
+  &.crossRoom {
+    background: rgba(255, 125, 0, 0.08);
+    border: 2rpx dashed $color-warning;
+  }
+}
+
+.slotWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.crossRoomTag {
+  background: rgba(255, 125, 0, 0.12);
+  border-radius: $radius-xs;
+  padding: 4rpx 8rpx;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4rpx;
+}
+
+.crossRoomTagText {
+  font-size: 18rpx;
+  color: $color-warning;
+  font-weight: $font-weight-medium;
+}
+
+.teacherClassroomTag {
+  background: rgba(45, 91, 137, 0.1);
+  border-radius: $radius-xs;
+  padding: 4rpx 8rpx;
+}
+
+.teacherClassroomTagText {
+  font-size: 18rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
