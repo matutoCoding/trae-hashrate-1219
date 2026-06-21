@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Booking, RecurringBooking, RecurringBookingFormData, CheckInStatus } from '@/types/booking'
+import type { Booking, RecurringBooking, RecurringBookingFormData, CheckInStatus, TeacherConflictInfo } from '@/types/booking'
 import { mockBookings } from '@/data/mockBooking'
 import { mergeAdjacentBookings, splitBookingAtTime, cancelMiddleSlot } from '@/utils/timeMerge'
 import { useCreditStore } from './creditStore'
@@ -24,7 +24,7 @@ interface BookingState {
     startTime: string,
     endTime: string,
     excludeBookingId?: string
-  ) => boolean
+  ) => TeacherConflictInfo
   createBooking: (
     classroomId: string,
     classroomName: string,
@@ -122,7 +122,7 @@ export const useBookingStore = create<BookingState>((set, get) => ({
   },
 
   checkTeacherConflict: (teacherId, date, startTime, endTime, excludeBookingId) => {
-    if (!teacherId) return false
+    if (!teacherId) return { hasConflict: false }
     const bookings = get().bookings.filter(
       b => b.teacherId === teacherId
         && b.date === date
@@ -135,15 +135,15 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       const bStart = timeToMinutes(b.startTime)
       const bEnd = timeToMinutes(b.endTime)
       if (newStart < bEnd && newEnd > bStart) {
-        console.log('[BookingStore] 老师时间冲突:', {
-          teacherId, date,
-          请求时段: `${startTime}-${endTime}`,
-          冲突预约: `${b.studentName} ${b.startTime}-${b.endTime}`
-        })
-        return true
+        const message = `${b.teacherName || '该老师'} ${b.startTime}-${b.endTime} 在${b.classroomName}给${b.studentName}上课`
+        return {
+          hasConflict: true,
+          conflictingBooking: b,
+          message
+        }
       }
     }
-    return false
+    return { hasConflict: false }
   },
 
   createBooking: (
@@ -176,8 +176,11 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       }
     }
 
-    if (teacherId && get().checkTeacherConflict(teacherId, date, startTime, endTime)) {
-      return { success: false, message: `${teacherName || '该老师'}在该时段已有其他课程安排` }
+    if (teacherId) {
+      const conflict = get().checkTeacherConflict(teacherId, date, startTime, endTime)
+      if (conflict.hasConflict) {
+        return { success: false, message: conflict.message || `${teacherName || '该老师'}在该时段已有其他课程安排` }
+      }
     }
 
     const deductResult = creditStore.freezeCredits(
@@ -280,9 +283,9 @@ export const useBookingStore = create<BookingState>((set, get) => ({
       }
 
       if (teacherId) {
-        const teacherConflict = get().checkTeacherConflict(teacherId, date, startTime, endTime)
-        if (teacherConflict) {
-          return { success: false, message: `${date} ${teacherName || '该老师'}在该时段已有安排，周期课创建失败` }
+        const conflict = get().checkTeacherConflict(teacherId, date, startTime, endTime)
+        if (conflict.hasConflict) {
+          return { success: false, message: `${date} ${conflict.message}，周期课创建失败` }
         }
       }
     }

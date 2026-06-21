@@ -11,7 +11,7 @@ interface CreditState {
   initialized: boolean
   recordsInitialized: boolean
   fetchPools: () => void
-  fetchRecords: (poolId?: string) => void
+  fetchRecords: () => void
   getPoolByClassId: (classId: string) => CreditPool | undefined
   getAvailableCredits: (poolId: string) => number
   freezeCredits: (
@@ -39,7 +39,7 @@ interface CreditState {
     operator: string,
     relatedBookingId?: string,
     remark?: string
-  ) => boolean
+  ) => { success: boolean; message?: string }
   refundCredits: (
     poolId: string,
     studentId: string,
@@ -48,7 +48,7 @@ interface CreditState {
     operator: string,
     relatedBookingId?: string,
     remark?: string
-  ) => boolean
+  ) => { success: boolean; message?: string }
   absentConsume: (
     poolId: string,
     studentId: string,
@@ -70,7 +70,7 @@ interface CreditState {
     amount: number,
     operator: string,
     remark?: string
-  ) => boolean
+  ) => { success: boolean; message?: string }
   deductCredits: (
     poolId: string,
     studentId: string,
@@ -84,10 +84,11 @@ interface CreditState {
 }
 
 const _syncState = () => {
+  const records = creditPoolManager.getAllRecords()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   return {
     pools: creditPoolManager.getAllPools(),
-    records: creditPoolManager.getAllRecords()
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    records
   }
 }
 
@@ -113,11 +114,10 @@ export const useCreditStore = create<CreditState>((set, get) => ({
         loading: false,
         initialized: true
       })
-      console.log('[CreditStore] 额度池初始化完成')
     }, 200)
   },
 
-  fetchRecords: (poolId?: string) => {
+  fetchRecords: () => {
     const { recordsInitialized } = get()
     let records = creditPoolManager.getAllRecords()
 
@@ -127,9 +127,6 @@ export const useCreditStore = create<CreditState>((set, get) => ({
       set({ recordsInitialized: true })
     }
 
-    if (poolId) {
-      records = records.filter(r => r.poolId === poolId)
-    }
     records.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     set({ records })
   },
@@ -163,7 +160,7 @@ export const useCreditStore = create<CreditState>((set, get) => ({
       poolId, studentId, studentName, amount, operator, relatedBookingId, remark
     )
     if (result.success) set(_syncState())
-    return result.success
+    return result
   },
 
   refundCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId, remark) => {
@@ -171,7 +168,7 @@ export const useCreditStore = create<CreditState>((set, get) => ({
       poolId, studentId, studentName, amount, operator, relatedBookingId, remark
     )
     if (result.success) set(_syncState())
-    return result.success
+    return result
   },
 
   absentConsume: (poolId, studentId, studentName, amount, operator, relatedBookingId) => {
@@ -193,11 +190,15 @@ export const useCreditStore = create<CreditState>((set, get) => ({
   rechargeCredits: (poolId, amount, operator, remark) => {
     const result = creditPoolManager.rechargeCredits(poolId, amount, operator, remark)
     if (result.success) set(_syncState())
-    return result.success
+    return result
   },
 
   deductCredits: (poolId, studentId, studentName, amount, operator, relatedBookingId) => {
-    return get().freezeCredits(poolId, studentId, studentName, amount, operator, relatedBookingId)
+    const result = creditPoolManager.deductCredits(
+      poolId, studentId, studentName, amount, operator, relatedBookingId
+    )
+    if (result.success) set(_syncState())
+    return result
   },
 
   getPoolRecords: (poolId) => {

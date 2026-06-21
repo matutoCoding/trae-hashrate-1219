@@ -23,9 +23,10 @@ export type RankLevel =
 export interface RankRecord {
   id: string
   studentId: string
+  studentName: string
   fromRank: RankLevel
   toRank: RankLevel
-  upgradeDate: string
+  recordDate: string
   operator: string
   remark?: string
 }
@@ -36,11 +37,13 @@ export interface Student {
   avatar?: string
   phone: string
   rank: RankLevel
+  rankUpdatedAt?: string
   classId: string
   className: string
   joinDate: string
   status: 'active' | 'inactive'
   remark?: string
+  createdAt?: string
 }
 
 export interface ClassInfo {
@@ -50,4 +53,12 @@ export interface ClassInfo {
   usedCredits: number
   studentCount: number
   description?: string
+}
+
+export interface RankUpgradeResult {
+  success: boolean
+  message?: string
+  fromRank?: RankLevel
+  toRank?: RankLevel
+  record?: RankRecord
 }

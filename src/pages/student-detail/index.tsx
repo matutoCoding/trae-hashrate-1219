@@ -6,32 +6,33 @@ import styles from './index.module.scss'
 import { useStudentStore } from '@/store/studentStore'
 import { useCreditStore } from '@/store/creditStore'
 import { useBookingStore } from '@/store/bookingStore'
-import { mockRankRecords } from '@/data/mockStudent'
 
 const StudentDetailPage: React.FC = () => {
   const router = useRouter()
   const studentId = router.params.id
 
-  const { getStudent, fetchRankRecords, rankRecords } = useStudentStore()
+  const { getStudent, fetchRankRecords, rankRecords, getStudentRankRecords, students } = useStudentStore()
   const { getPoolByClassId } = useCreditStore()
   const { getBookingsByStudent } = useBookingStore()
 
   const [student, setStudent] = useState<ReturnType<typeof getStudent>>(undefined)
 
   useEffect(() => {
+    fetchRankRecords()
+  }, [])
+
+  useEffect(() => {
     if (studentId) {
       const s = getStudent(studentId)
       setStudent(s)
-      fetchRankRecords(studentId)
     }
-  }, [studentId])
+  }, [studentId, students])
+
+  const studentRankRecords = studentId ? getStudentRankRecords(studentId) : []
 
   const pool = student ? getPoolByClassId(student.classId) : undefined
   const bookings = student ? getBookingsByStudent(student.id) : []
   const activeBookings = bookings.filter(b => b.status === 'active')
-
-  const studentRankRecords = mockRankRecords.filter(r => r.studentId === studentId)
-    .sort((a, b) => b.upgradeDate.localeCompare(a.upgradeDate))
 
   const handleUpgrade = () => {
     Taro.navigateTo({
@@ -145,7 +146,7 @@ const StudentDetailPage: React.FC = () => {
                     <Text className={styles.rankArrow}>↑</Text>
                     <Text>{record.toRank}</Text>
                   </View>
-                  <Text className={styles.rankDate}>{record.upgradeDate}</Text>
+                  <Text className={styles.rankDate}>{record.recordDate.slice(0, 10)}</Text>
                   <Text className={styles.rankOperator}>操作人：{record.operator}</Text>
                   {record.remark && (
                     <View className={styles.rankRemark}>

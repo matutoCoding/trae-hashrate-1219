@@ -155,7 +155,6 @@ const RecurringBookingCreatePage: React.FC = () => {
       startTime,
       endTime,
       slotCount,
-      slotDuration: currentClassroom.slotDuration,
       totalWeeks: weekCount
     }
 

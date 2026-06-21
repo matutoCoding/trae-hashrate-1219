@@ -128,69 +128,77 @@ export const mockRankRecords: RankRecord[] = [
   {
     id: 'rank_001',
     studentId: 'stu_001',
+    studentName: '李小明',
     fromRank: '无级',
     toRank: '10级',
-    upgradeDate: '2024-04-15',
+    recordDate: '2024-04-15T10:00:00.000Z',
     operator: '张老师',
     remark: '入门课程结业考核通过'
   },
   {
     id: 'rank_002',
     studentId: 'stu_002',
+    studentName: '王小红',
     fromRank: '10级',
     toRank: '9级',
-    upgradeDate: '2024-02-20',
+    recordDate: '2024-02-20T10:00:00.000Z',
     operator: '李老师'
   },
   {
     id: 'rank_003',
     studentId: 'stu_002',
+    studentName: '王小红',
     fromRank: '9级',
     toRank: '8级',
-    upgradeDate: '2024-04-10',
+    recordDate: '2024-04-10T10:00:00.000Z',
     operator: '李老师',
     remark: '进步明显，计算力提升'
   },
   {
     id: 'rank_004',
     studentId: 'stu_003',
+    studentName: '张小强',
     fromRank: '8级',
     toRank: '7级',
-    upgradeDate: '2024-01-25',
+    recordDate: '2024-01-25T10:00:00.000Z',
     operator: '王老师'
   },
   {
     id: 'rank_005',
     studentId: 'stu_003',
+    studentName: '张小强',
     fromRank: '7级',
     toRank: '6级',
-    upgradeDate: '2024-03-15',
+    recordDate: '2024-03-15T10:00:00.000Z',
     operator: '王老师'
   },
   {
     id: 'rank_006',
     studentId: 'stu_003',
+    studentName: '张小强',
     fromRank: '6级',
     toRank: '5级',
-    upgradeDate: '2024-05-08',
+    recordDate: '2024-05-08T10:00:00.000Z',
     operator: '王老师',
     remark: '定级赛获胜'
   },
   {
     id: 'rank_007',
     studentId: 'stu_006',
+    studentName: '赵小龙',
     fromRank: '1级',
     toRank: '1段',
-    upgradeDate: '2023-11-20',
+    recordDate: '2023-11-20T10:00:00.000Z',
     operator: '主教练',
     remark: '升段赛成功升段'
   },
   {
     id: 'rank_008',
     studentId: 'stu_006',
+    studentName: '赵小龙',
     fromRank: '1段',
     toRank: '2段',
-    upgradeDate: '2024-04-05',
+    recordDate: '2024-04-05T10:00:00.000Z',
     operator: '主教练'
   }
 ]

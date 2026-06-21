@@ -54,8 +54,8 @@ const BookingCreatePage: React.FC = () => {
 
   const totalCost = slotCount
 
-  const hasTeacherConflict = useMemo(() => {
-    if (!selectedTeacherId || !selectedDate) return false
+  const teacherConflict = useMemo(() => {
+    if (!selectedTeacherId || !selectedDate) return { hasConflict: false }
     return checkTeacherConflict(
       selectedTeacherId,
       selectedDate,
@@ -63,6 +63,8 @@ const BookingCreatePage: React.FC = () => {
       endTimeVal
     )
   }, [selectedTeacherId, selectedDate, startTimeVal, endTimeVal, checkTeacherConflict])
+
+  const hasTeacherConflict = teacherConflict.hasConflict
 
   const canSubmit =
     selectedClassroomId &&
@@ -208,7 +210,9 @@ const BookingCreatePage: React.FC = () => {
         {hasTeacherConflict && (
           <View className={styles.conflictWarning}>
             <Text className={styles.conflictIcon}>⚠️</Text>
-            <Text className={styles.conflictText}>该老师在此时段已有排课，请更换时间或老师</Text>
+            <Text className={styles.conflictText}>
+              {teacherConflict.message || '该老师在此时段已有排课，请更换时间或老师'}
+            </Text>
           </View>
         )}
       </View>

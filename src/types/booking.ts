@@ -57,6 +57,12 @@ export interface BookingSlot {
 export type BookingStatus = 'active' | 'cancelled' | 'completed'
 export type CheckInStatus = 'pending' | 'checked_in' | 'absent' | 'leave'
 
+export interface TeacherConflictInfo {
+  hasConflict: boolean
+  conflictingBooking?: Booking
+  message?: string
+}
+
 export interface RecurringBookingFormData {
   studentId: string
   studentName: string

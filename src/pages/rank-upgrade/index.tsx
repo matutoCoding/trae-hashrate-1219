@@ -102,13 +102,24 @@ const RankUpgradePage: React.FC = () => {
         if (res.confirm) {
           const result = upgradeRank(selectedStudentId, targetRank, operator, remark)
           if (result.success) {
-            Taro.showToast({ title: '登记成功', icon: 'success' })
-            setTimeout(() => {
-              const updated = getStudent(selectedStudentId)
-              if (updated) {
-                setCurrentRank(updated.rank)
+            setCurrentRank(targetRank)
+            const isDan = targetRank.includes('段')
+            setLevelType(isDan ? 'dan' : 'kyu')
+            if (!isDan) {
+              const idx = kyuLevels.indexOf(targetRank as RankLevel)
+              if (idx >= 0 && idx < kyuLevels.length - 1) {
+                setTargetRank(kyuLevels[idx + 1])
               }
-            }, 500)
+            } else {
+              const idx = danLevels.indexOf(targetRank as RankLevel)
+              if (idx >= 0 && idx < danLevels.length - 1) {
+                setTargetRank(danLevels[idx + 1])
+              } else {
+                setTargetRank(targetRank)
+              }
+            }
+            setRemark('')
+            Taro.showToast({ title: '登记成功', icon: 'success' })
           } else {
             Taro.showToast({ title: result.message || '登记失败', icon: 'none' })
           }

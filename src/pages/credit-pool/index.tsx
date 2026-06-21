@@ -19,7 +19,8 @@ const CreditPoolPage: React.FC = () => {
     fetchRecords,
     getAvailableCredits,
     rechargeCredits,
-    refundCredits
+    refundCredits,
+    deductCredits
   } = useCreditStore()
 
   const [selectedPoolId, setSelectedPoolId] = useState(poolId || '')
@@ -50,10 +51,10 @@ const CreditPoolPage: React.FC = () => {
   const handleRecharge = () => {
     Taro.showModal({
       title: '充值课时',
-      editable: true,
+      editable: true as any,
       placeholderText: '请输入充值课时数',
       confirmText: '确认充值',
-      success: (res) => {
+      success: (res: any) => {
         if (res.confirm && res.content) {
           const amount = parseInt(res.content)
           if (isNaN(amount) || amount <= 0) {
@@ -63,13 +64,12 @@ const CreditPoolPage: React.FC = () => {
           const result = rechargeCredits(selectedPoolId, amount, '管理员', '手动充值')
           if (result.success) {
             Taro.showToast({ title: '充值成功', icon: 'success' })
-            fetchRecords()
           } else {
             Taro.showToast({ title: result.message || '充值失败', icon: 'none' })
           }
         }
       }
-    })
+    } as any)
   }
 
   const handleDemoConcurrent = () => {
@@ -82,7 +82,7 @@ const CreditPoolPage: React.FC = () => {
 
     for (let i = 0; i < 5; i++) {
       setTimeout(() => {
-        const result = creditPoolManager.deductCredits(
+        const result = deductCredits(
           selectedPoolId,
           `stu_demo_${i}`,
           `演示学员${i + 1}`,
@@ -91,12 +91,9 @@ const CreditPoolPage: React.FC = () => {
         )
         results.push(result.success)
         completed++
-        console.log(`[CreditPool] 并发请求${i + 1}:`, result.success ? '成功' : '失败', result.message)
 
         if (completed === 5) {
           Taro.hideLoading()
-          fetchPools()
-          fetchRecords()
           const successCount = results.filter(r => r).length
           Taro.showModal({
             title: '并发扣减演示',
@@ -112,22 +109,35 @@ const CreditPoolPage: React.FC = () => {
   const handleDemoRefund = () => {
     if (!currentPool) return
 
-    const result = refundCredits(
-      selectedPoolId,
-      'stu_demo_refund',
-      '演示学员',
-      5,
-      '管理员',
-      '演示退还'
-    )
-
-    if (result.success) {
-      fetchPools()
-      fetchRecords()
-      Taro.showToast({ title: '退还成功', icon: 'success' })
-    } else {
-      Taro.showToast({ title: result.message || '退还失败', icon: 'none' })
-    }
+    Taro.showModal({
+      title: '退还课时',
+      editable: true as any,
+      placeholderText: '请输入退还课时数',
+      confirmText: '确认退还',
+      success: (res: any) => {
+        if (res.confirm && res.content) {
+          const amount = parseInt(res.content)
+          if (isNaN(amount) || amount <= 0) {
+            Taro.showToast({ title: '请输入有效数量', icon: 'none' })
+            return
+          }
+          const result = refundCredits(
+            selectedPoolId,
+            'stu_demo_refund',
+            '演示学员',
+            amount,
+            '管理员',
+            undefined,
+            '演示退还'
+          )
+          if (result.success) {
+            Taro.showToast({ title: '退还成功', icon: 'success' })
+          } else {
+            Taro.showToast({ title: result.message || '退还失败', icon: 'none' })
+          }
+        }
+      }
+    } as any)
   }
 
   const handleDemoBalance = () => {
@@ -158,6 +168,11 @@ const CreditPoolPage: React.FC = () => {
     const negativeTypes: CreditRecordType[] = ['freeze', 'consume', 'absent_consume']
     const prefix = negativeTypes.includes(record.type) ? '-' : '+'
     return `${prefix}${record.amount}`
+  }
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return ''
+    return dateStr.slice(0, 16).replace('T', ' ')
   }
 
   return (
@@ -256,7 +271,7 @@ const CreditPoolPage: React.FC = () => {
         </View>
         <View className={styles.recordList}>
           {poolRecords.length > 0 ? (
-            poolRecords.slice(0, 10).map(record => {
+            poolRecords.slice(0, 20).map(record => {
               const typeConfig = getRecordTypeConfig(record.type)
               return (
                 <View key={record.id} className={styles.recordItem}>
@@ -268,7 +283,7 @@ const CreditPoolPage: React.FC = () => {
                       {typeConfig.text} · {record.studentName}
                     </Text>
                     <Text className={styles.recordSub}>
-                      {record.createdAt.slice(0, 19).replace('T', ' ')}
+                      {formatDate(record.createdAt)}
                     </Text>
                     {record.remark && (
                       <Text className={styles.recordSub}>{record.remark}</Text>
@@ -286,39 +301,6 @@ const CreditPoolPage: React.FC = () => {
               <Text className={styles.emptyText}>暂无变更记录</Text>
             </View>
           )}
-        </View>
-      </View>
-
-      <View className={styles.demoSection}>
-        <View className={styles.demoTitle}>
-          <View className={styles.demoIcon}>💡</View>
-          <Text>核心特性说明</Text>
-        </View>
-        <View style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <View style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <View style={{ width: 12, height: 12, borderRadius: 6, background: '#2D5B89', marginTop: 8, flexShrink: 0 }} />
-            <Text style={{ fontSize: 26, color: '#4E5969', lineHeight: 1.6, flex: 1 }}>
-              <Text style={{ color: '#2D5B89', fontWeight: 500 }}>共享额度池</Text>：班级共享课时总额，多人共同使用
-            </Text>
-          </View>
-          <View style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <View style={{ width: 12, height: 12, borderRadius: 6, background: '#2D5B89', marginTop: 8, flexShrink: 0 }} />
-            <Text style={{ fontSize: 26, color: '#4E5969', lineHeight: 1.6, flex: 1 }}>
-              <Text style={{ color: '#2D5B89', fontWeight: 500 }}>并发锁机制</Text>：扣减前加锁，防止并发超额
-            </Text>
-          </View>
-          <View style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <View style={{ width: 12, height: 12, borderRadius: 6, background: '#2D5B89', marginTop: 8, flexShrink: 0 }} />
-            <Text style={{ fontSize: 26, color: '#4E5969', lineHeight: 1.6, flex: 1 }}>
-              <Text style={{ color: '#2D5B89', fontWeight: 500 }}>版本号控制</Text>：每次变更版本号递增，确保一致性
-            </Text>
-          </View>
-          <View style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-            <View style={{ width: 12, height: 12, borderRadius: 6, background: '#2D5B89', marginTop: 8, flexShrink: 0 }} />
-            <Text style={{ fontSize: 26, color: '#4E5969', lineHeight: 1.6, flex: 1 }}>
-              <Text style={{ color: '#2D5B89', fontWeight: 500 }}>实时余额</Text>：操作后余额立即更新，数据准确
-            </Text>
-          </View>
         </View>
       </View>
     </View>
